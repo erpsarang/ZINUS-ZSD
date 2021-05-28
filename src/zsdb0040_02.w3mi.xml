@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_W3MI" serializer_version="v2.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <NAME>ZSDB0040_02</NAME>
+   <TEXT>Sales org eq &apos;1001&apos;</TEXT>
+   <PARAMS>
+    <WWWPARAMS>
+     <RELID>MI</RELID>
+     <OBJID>ZSDB0040_02</OBJID>
+     <NAME>mimetype</NAME>
+     <VALUE>Excel</VALUE>
+    </WWWPARAMS>
+    <WWWPARAMS>
+     <RELID>MI</RELID>
+     <OBJID>ZSDB0040_02</OBJID>
+     <NAME>fileextension</NAME>
+     <VALUE>.xlsx</VALUE>
+    </WWWPARAMS>
+    <WWWPARAMS>
+     <RELID>MI</RELID>
+     <OBJID>ZSDB0040_02</OBJID>
+     <NAME>filename</NAME>
+     <VALUE>ZSDB0040_02.xlsx</VALUE>
+    </WWWPARAMS>
+   </PARAMS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

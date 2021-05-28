@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_FUGR" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <AREAT>[SD] ASN DATA Management</AREAT>
+   <INCLUDES>
+    <SOBJ_NAME>LZSD1130F01</SOBJ_NAME>
+    <SOBJ_NAME>LZSD1130TOP</SOBJ_NAME>
+    <SOBJ_NAME>SAPLZSD1130</SOBJ_NAME>
+   </INCLUDES>
+   <FUNCTIONS>
+    <item>
+     <FUNCNAME>ZSD_ASN_SAVE</FUNCNAME>
+     <SHORT_TEXT>[SD] ASN_DATA_SAVE</SHORT_TEXT>
+     <EXPORT>
+      <RSEXP>
+       <PARAMETER>E_MSG</PARAMETER>
+       <REFERENCE>X</REFERENCE>
+       <TYP>STRING</TYP>
+      </RSEXP>
+     </EXPORT>
+     <TABLES>
+      <RSTBL>
+       <PARAMETER>IT_DATA</PARAMETER>
+       <DBSTRUCT>ZMM1T5020</DBSTRUCT>
+      </RSTBL>
+     </TABLES>
+     <DOCUMENTATION>
+      <RSFDO>
+       <PARAMETER>E_MSG</PARAMETER>
+       <KIND>P</KIND>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>IT_DATA</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>[MM] ASN Information Interface (back up table ZMM1T5022)</STEXT>
+      </RSFDO>
+     </DOCUMENTATION>
+    </item>
+   </FUNCTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

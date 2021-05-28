@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_FUGR" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <AREAT>[SD] Change S/O scheduline date</AREAT>
+   <INCLUDES>
+    <SOBJ_NAME>LZSDFG_0005TOP</SOBJ_NAME>
+    <SOBJ_NAME>SAPLZSDFG_0005</SOBJ_NAME>
+   </INCLUDES>
+   <FUNCTIONS>
+    <item>
+     <FUNCNAME>ZSD_CHANGE_SO_SCHEDULINE_DATE</FUNCNAME>
+     <SHORT_TEXT>[SD] Change S/O scheduline date</SHORT_TEXT>
+     <IMPORT>
+      <RSIMP>
+       <PARAMETER>I_VBELN</PARAMETER>
+       <TYP>VBELN_VL</TYP>
+      </RSIMP>
+      <RSIMP>
+       <PARAMETER>I_VBELN_SO</PARAMETER>
+       <TYP>VBELN_VA</TYP>
+      </RSIMP>
+      <RSIMP>
+       <PARAMETER>I_LFDAT_EX</PARAMETER>
+       <TYP>LFDAT</TYP>
+      </RSIMP>
+     </IMPORT>
+     <TABLES>
+      <RSTBL>
+       <PARAMETER>T_RETURN</PARAMETER>
+       <DBSTRUCT>BAPIRET2</DBSTRUCT>
+      </RSTBL>
+     </TABLES>
+     <DOCUMENTATION>
+      <RSFDO>
+       <PARAMETER>I_VBELN</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Delivery</STEXT>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>I_VBELN_SO</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Sales Document</STEXT>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>I_LFDAT_EX</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Delivery date</STEXT>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>T_RETURN</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Return Parameter</STEXT>
+      </RSFDO>
+     </DOCUMENTATION>
+    </item>
+   </FUNCTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

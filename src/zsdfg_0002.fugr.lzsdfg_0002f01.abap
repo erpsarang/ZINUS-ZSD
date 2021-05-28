@@ -1,0 +1,289 @@
+*----------------------------------------------------------------------*
+***INCLUDE LZSDFG_0002F01.
+*----------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*& PERFORM          SAVE_INFORM_40
+*&---------------------------------------------------------------------*
+FORM SAVE_INFORM_40.
+
+  DATA : LS_DATA LIKE ZSDT0040.
+
+  CLEAR : LS_DATA.
+  SELECT SINGLE ZKUNNR_IC
+    INTO ZSDT0040-ZKUNNR_IC
+  FROM ZSDT0040
+  WHERE ZKUNNR_IC = ZSDT0040-ZKUNNR_IC.
+
+  IF SY-SUBRC = 0.
+    ZSDT0040-AENAM = SY-UNAME.
+    ZSDT0040-AEDAT = SY-DATUM.
+    ZSDT0040-AEZET = SY-UZEIT.
+  ELSE.
+    ZSDT0040-ERNAM = SY-UNAME.
+    ZSDT0040-ERDAT = SY-DATUM.
+    ZSDT0040-ERZET = SY-UZEIT.
+  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& PERFORM          SAVE_INFORM_41
+*&---------------------------------------------------------------------*
+FORM SAVE_INFORM_41.
+
+  DATA : LS_DATA LIKE ZSDT0041.
+
+  CLEAR : LS_DATA.
+  SELECT SINGLE ZKUNNR_IC
+  INTO LS_DATA-ZKUNNR_IC
+  FROM ZSDT0041
+  WHERE ZKUNNR_IC = ZSDV0041-ZKUNNR_IC
+    AND ZKUNNR    = ZSDV0041-ZKUNNR.
+
+  IF SY-SUBRC = 0.
+    ZSDV0041-AENAM = SY-UNAME.
+    ZSDV0041-AEDAT = SY-DATUM.
+    ZSDV0041-AEZET = SY-UZEIT.
+  ELSE.
+    ZSDV0041-ERNAM = SY-UNAME.
+    ZSDV0041-ERDAT = SY-DATUM.
+    ZSDV0041-ERZET = SY-UZEIT.
+  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& PERFORM          SAVE_INFORM_42
+*&---------------------------------------------------------------------*
+FORM SAVE_INFORM_42.
+
+  DATA : LS_DATA  LIKE ZSDT0042.
+
+  CLEAR LS_DATA.
+  SELECT SINGLE ZKUNNR_IC
+    INTO LS_DATA-ZKUNNR_IC
+    FROM ZSDT0042
+  WHERE ZKUNNR_IC = ZSDV0042-ZKUNNR_IC
+    AND KUNNR = ZSDV0042-KUNNR
+    AND VTWEG = ZSDV0042-VTWEG
+    AND VKORG = ZSDV0042-VKORG.
+
+  IF SY-SUBRC = 0.
+    ZSDV0042-AENAM = SY-UNAME.
+    ZSDV0042-AEDAT = SY-DATUM.
+    ZSDV0042-AEZET = SY-UZEIT.
+  ELSE.
+    ZSDV0042-ERNAM = SY-UNAME.
+    ZSDV0042-ERDAT = SY-DATUM.
+    ZSDV0042-ERZET = SY-UZEIT.
+  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& PERFORM          SAVE_INFORM_50
+*&---------------------------------------------------------------------*
+FORM SAVE_INFORM_50.
+
+  DATA : LS_DATA       LIKE ZSDT0050.
+
+  CLEAR LS_DATA.
+  SELECT SINGLE ZKUNNR_IC
+    INTO LS_DATA-ZKUNNR_IC
+    FROM ZSDT0050
+  WHERE ZKUNNR_IC = ZSDT0050-ZKUNNR_IC
+    AND WERKS     = ZSDT0050-WERKS
+    AND LIFNR     = ZSDT0050-LIFNR.
+
+  IF SY-SUBRC = 0.
+    ZSDT0050-AENAM = SY-UNAME.
+    ZSDT0050-AEDAT = SY-DATUM.
+    ZSDT0050-AEZET = SY-UZEIT.
+  ELSE.
+    ZSDT0050-ERNAM = SY-UNAME.
+    ZSDT0050-ERDAT = SY-DATUM.
+    ZSDT0050-ERZET = SY-UZEIT.
+  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& PERFORM          SAVE_INFORM_60
+*&---------------------------------------------------------------------*
+FORM SAVE_INFORM_60.
+
+  DATA : LS_DATA       LIKE ZSDT0060.
+
+  CLEAR LS_DATA.
+  SELECT SINGLE ZKUNNR_IC
+    INTO LS_DATA-ZKUNNR_IC
+    FROM ZSDT0060
+  WHERE ZKUNNR_IC = ZSDT0060-ZKUNNR_IC
+    AND VTWEG     = ZSDT0060-VTWEG
+    AND KUNWE     = ZSDT0060-KUNWE.
+
+  IF SY-SUBRC = 0.
+    ZSDT0060-AENAM = SY-UNAME.
+    ZSDT0060-AEDAT = SY-DATUM.
+    ZSDT0060-AEZET = SY-UZEIT.
+  ELSE.
+    ZSDT0060-ERNAM = SY-UNAME.
+    ZSDT0060-ERDAT = SY-DATUM.
+    ZSDT0060-ERZET = SY-UZEIT.
+  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& PERFORM          SAVE_INFORM_90
+*&---------------------------------------------------------------------*
+FORM SAVE_INFORM_90.
+
+  DATA : LS_DATA  LIKE ZSDV0090,
+         LV_PRODH LIKE T179-PRODH.
+
+  CHECK ZSDV0090-ZPRODH_GROUP IS NOT INITIAL AND ZSDV0090-PRODH IS NOT INITIAL.
+  CLEAR : ZSDV0090-VTEXT.
+
+  IF  ZSDV0090-REMARK IS INITIAL.
+    SELECT SINGLE VTEXT
+    INTO ZSDV0090-REMARK
+    FROM ZSDT0100
+    WHERE ZPRODH_GROUP = ZSDV0090-ZPRODH_GROUP.
+  ENDIF.
+
+  SELECT SINGLE PRODH VTEXT
+  INTO ( LV_PRODH, ZSDV0090-VTEXT )
+  FROM T179T
+  WHERE PRODH = ZSDV0090-PRODH
+    AND SPRAS = SY-LANGU.
+
+  IF LV_PRODH IS INITIAL.
+    CLEAR ZSDV0090-PRODH.
+    MESSAGE I000(ZSD) WITH TEXT-E02 '(' ZSDV0090-PRODH ')'.
+    EXIT.
+  ENDIF.
+
+  CLEAR LS_DATA.
+  SELECT SINGLE ZPRODH_GROUP PRODH
+    INTO CORRESPONDING FIELDS OF LS_DATA
+    FROM ZSDT0090
+  WHERE ZPRODH_GROUP = ZSDV0090-ZPRODH_GROUP
+    AND PRODH        = ZSDV0090-PRODH.
+
+  IF SY-SUBRC = 0.
+    ZSDV0090-AENAM = SY-UNAME.
+    ZSDV0090-AEDAT = SY-DATUM.
+    ZSDV0090-AEZET = SY-UZEIT.
+  ELSE.
+    ZSDV0090-ERNAM = SY-UNAME.
+    ZSDV0090-ERDAT = SY-DATUM.
+    ZSDV0090-ERZET = SY-UZEIT.
+  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& PERFORM          SAVE_INFORM_100
+*&---------------------------------------------------------------------*
+FORM SAVE_INFORM_100.
+
+  DATA : LS_DATA LIKE ZSDT0100.
+
+  CLEAR LS_DATA.
+  SELECT SINGLE ZPRODH_GROUP
+  INTO CORRESPONDING FIELDS OF LS_DATA
+  FROM ZSDT0100
+  WHERE ZPRODH_GROUP = ZSDT0100-ZPRODH_GROUP.
+
+  IF SY-SUBRC = 0.
+    ZSDT0100-AENAM = SY-UNAME.
+    ZSDT0100-AEDAT = SY-DATUM.
+    ZSDT0100-AEZET = SY-UZEIT.
+  ELSE.
+    ZSDT0100-ERNAM = SY-UNAME.
+    ZSDT0100-ERDAT = SY-DATUM.
+    ZSDT0100-ERZET = SY-UZEIT.
+  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*&      Module  F4_PRODH  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE F4_PRODH INPUT.
+
+  DATA : BEGIN OF LT_LINE OCCURS 0,
+           PRODH LIKE T179-PRODH,
+           VTEXT LIKE T179T-VTEXT,
+         END OF LT_LINE.
+
+  DATA : LV_SELECTFIELD  LIKE  HELP_INFO-FIELDNAME,
+         LT_FIELDS       LIKE  HELP_VALUE OCCURS 0 WITH HEADER LINE,
+         LV_SELECT_VALUE LIKE  HELP_INFO-FLDVALUE,
+         LD_TABIX        LIKE  SY-TABIX.
+
+  CLEAR : LT_LINE, LT_LINE[].
+  SELECT A~PRODH B~VTEXT
+  INTO CORRESPONDING FIELDS OF TABLE LT_LINE
+  FROM T179 AS A INNER JOIN T179T AS B ON A~PRODH = B~PRODH
+  WHERE A~STUFE = '3'
+    AND B~SPRAS = SY-LANGU.
+
+  SORT LT_LINE BY PRODH.
+  DELETE ADJACENT DUPLICATES FROM LT_LINE COMPARING PRODH.
+
+  CLEAR: LV_SELECTFIELD, LT_FIELDS, LV_SELECT_VALUE, LD_TABIX.
+  REFRESH: LT_FIELDS.
+
+  LT_FIELDS-TABNAME =   'T179'.
+  LT_FIELDS-FIELDNAME = 'PRODH'.
+  LT_FIELDS-SELECTFLAG = 'X'.
+  APPEND LT_FIELDS.
+
+  LT_FIELDS-TABNAME =   'T179T'.
+  LT_FIELDS-FIELDNAME = 'VTEXT'.
+  LT_FIELDS-SELECTFLAG = ' '.
+  APPEND LT_FIELDS.
+
+  CALL FUNCTION 'HELP_VALUES_GET_NO_DD_NAME'
+    EXPORTING
+      SELECTFIELD                  = LV_SELECTFIELD
+    IMPORTING
+      IND                          = LD_TABIX
+      SELECT_VALUE                 = LV_SELECT_VALUE
+    TABLES
+      FIELDS                       = LT_FIELDS
+      FULL_TABLE                   = LT_LINE
+    EXCEPTIONS
+      FULL_TABLE_EMPTY             = 1
+      NO_TABLESTRUCTURE_GIVEN      = 2
+      NO_TABLEFIELDS_IN_DICTIONARY = 3
+      MORE_THEN_ONE_SELECTFIELD    = 4
+      NO_SELECTFIELD               = 5
+      OTHERS                       = 6.
+  CHECK NOT LD_TABIX IS INITIAL.
+  READ TABLE LT_LINE INDEX LD_TABIX.
+
+  ZSDV0090-PRODH = LT_LINE-PRODH.
+
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*& PERFORM          SAVE_INFORM_30
+*&---------------------------------------------------------------------*
+FORM SAVE_INFORM_30.
+
+  DATA : LS_DATA LIKE ZSDT0030.
+
+  CLEAR LS_DATA.
+  SELECT SINGLE ZEMAIL
+  INTO CORRESPONDING FIELDS OF LS_DATA
+  FROM ZSDT0030
+  WHERE ZEMAIL = ZSDT0030-ZEMAIL.
+
+  IF SY-SUBRC = 0.
+    ZSDT0030-AENAM = SY-UNAME.
+    ZSDT0030-AEDAT = SY-DATUM.
+    ZSDT0030-AEZET = SY-UZEIT.
+  ELSE.
+    ZSDT0030-ERNAM = SY-UNAME.
+    ZSDT0030-ERDAT = SY-DATUM.
+    ZSDT0030-ERZET = SY-UZEIT.
+  ENDIF.
+
+ENDFORM.

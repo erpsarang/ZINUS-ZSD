@@ -1,0 +1,1530 @@
+*&---------------------------------------------------------------------*
+*& Include          ZSDR0150F01
+*&---------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Form  SET_INIT
+*&---------------------------------------------------------------------*
+FORM SET_INIT .
+
+  DATA : LV_DATE LIKE SY-DATUM.
+
+  _CLEAR : S_FKDAT, S_VKORG, S_VTWEG.
+
+
+  CLEAR LV_DATE.
+  LV_DATE = SY-DATUM(6) && '01'.
+  _RANGE S_FKDAT 'I' 'BT' LV_DATE SY-DATUM.
+  _RANGE S_VKORG 'I' 'EQ' '1001' ''.
+  _RANGE S_KUNAG 'I' 'EQ' '0000002000' ''.
+  _RANGE S_VTWEG 'I' 'EQ' '10' ''.
+
+ENDFORM. " SET_INIT
+*&---------------------------------------------------------------------*
+*&      Form  HANDLE_DATA_CHANGED
+*&---------------------------------------------------------------------*
+FORM HANDLE_DATA_CHANGED USING PR_DATA_CHANGED TYPE REF TO CL_ALV_CHANGED_DATA_PROTOCOL.
+
+  DATA : LS_MOD_CELLS TYPE LVC_S_MODI.
+
+  CLEAR: LS_MOD_CELLS.
+
+  LOOP AT PR_DATA_CHANGED->MT_MOD_CELLS INTO LS_MOD_CELLS.
+    CASE LS_MOD_CELLS-FIELDNAME.
+*     WHEN
+
+    ENDCASE.
+  ENDLOOP.
+
+
+ENDFORM. " HANDLE_DATA_CHANGED
+*&---------------------------------------------------------------------*
+*&      Form  HANDLE_USER_COMMAND
+*&---------------------------------------------------------------------*
+FORM HANDLE_USER_COMMAND USING P_UCOMM.
+
+  CASE P_UCOMM.
+
+  ENDCASE.
+
+ENDFORM. " HANDLE_USER_COMMAND
+*&---------------------------------------------------------------------*
+*& Form SET_SELECTION
+*&---------------------------------------------------------------------*
+FORM SET_SELECTION .
+
+
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form POPUP_MSG
+*&---------------------------------------------------------------------*
+FORM POPUP_MSG USING P_MSG1 P_MSG2 PV_CHECK.
+
+  CLEAR PV_CHECK.
+  CALL FUNCTION 'POPUP_TO_CONFIRM'
+    EXPORTING
+      TITLEBAR       = P_MSG1
+      TEXT_QUESTION  = P_MSG2
+      TEXT_BUTTON_1  = 'YES'
+      TEXT_BUTTON_2  = 'NO'
+    IMPORTING
+      ANSWER         = PV_CHECK
+    EXCEPTIONS
+      TEXT_NOT_FOUND = 1
+      OTHERS         = 2.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form HANDLE_HOTSPOT_CLICK
+*&---------------------------------------------------------------------*
+FORM HANDLE_HOTSPOT_CLICK  USING P_ROW_ID
+                                 P_COLUMN_ID.
+
+  CLEAR GT_LIST.
+  READ TABLE GT_LIST INDEX P_ROW_ID.
+  CASE P_COLUMN_ID.
+
+  ENDCASE.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form ALPHA_INPUT
+*&---------------------------------------------------------------------*
+FORM ALPHA_INPUT  USING    P_DATA.
+
+  CALL FUNCTION 'CONVERSION_EXIT_ALPHA_INPUT'
+    EXPORTING
+      INPUT  = P_DATA
+    IMPORTING
+      OUTPUT = P_DATA.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form HANDLE_TOOLBAR
+*&---------------------------------------------------------------------*
+FORM HANDLE_TOOLBAR   USING PE_OBJECT TYPE REF TO CL_ALV_EVENT_TOOLBAR_SET
+                            PE_INTERACTIVE.
+
+  DATA: LS_TOOLBAR TYPE STB_BUTTON.
+  DATA: LS_UPLOAD  TYPE STB_BUTTON.
+
+  CLEAR LS_UPLOAD.
+  MOVE 3 TO LS_UPLOAD-BUTN_TYPE.
+  APPEND LS_UPLOAD TO PE_OBJECT->MT_TOOLBAR.
+
+*    LS_TOOLBAR-FUNCTION  = SPACE.
+*    LS_TOOLBAR-ICON      = SPACE.
+*    LS_TOOLBAR-BUTN_TYPE = '3'.
+*    LS_TOOLBAR-DISABLED  = SPACE.
+*    LS_TOOLBAR-TEXT      = SPACE.
+*    LS_TOOLBAR-QUICKINFO = SPACE.
+*    LS_TOOLBAR-CHECKED   = SPACE.
+*    APPEND LS_TOOLBAR TO PE_OBJECT->MT_TOOLBAR.
+*
+*    LS_TOOLBAR-FUNCTION  = 'DELETE'.
+*    LS_TOOLBAR-ICON      = ICON_DELETE.
+*    LS_TOOLBAR-BUTN_TYPE = SPACE.
+*    LS_TOOLBAR-DISABLED  = SPACE.
+*    LS_TOOLBAR-TEXT      = 'DELETE'.
+*    LS_TOOLBAR-QUICKINFO = 'DELETE'.
+*    LS_TOOLBAR-CHECKED   = SPACE.
+*    APPEND LS_TOOLBAR TO PE_OBJECT->MT_TOOLBAR.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form HANDLE_DOUBLE_CLICK
+*&---------------------------------------------------------------------*
+FORM HANDLE_DOUBLE_CLICK  USING    PE_ROW
+                                   PE_COLUMN.
+
+  CASE PE_COLUMN.
+    WHEN 'VBELN_VF'.
+      CLEAR : GT_LIST.
+      READ TABLE GT_LIST INDEX PE_ROW.
+      CHECK SY-SUBRC EQ 0.
+      SET PARAMETER ID 'VF' FIELD GT_LIST-VBELN_VF.
+      CALL TRANSACTION 'VF03' AND SKIP FIRST SCREEN.
+
+    WHEN 'VBELN_VF2'.
+      CLEAR : GT_LIST.
+      READ TABLE GT_LIST INDEX PE_ROW.
+      CHECK SY-SUBRC EQ 0.
+      SET PARAMETER ID 'VF' FIELD GT_LIST-VBELN_VF2.
+      CALL TRANSACTION 'VF03' AND SKIP FIRST SCREEN.
+
+    WHEN 'VBELN_VL'.
+      CLEAR : GT_LIST.
+      READ TABLE GT_LIST INDEX PE_ROW.
+      CHECK SY-SUBRC EQ 0.
+      SET PARAMETER ID 'VL' FIELD GT_LIST-VBELN_VL.
+      CALL TRANSACTION 'VL03N' AND SKIP FIRST SCREEN.
+
+    WHEN 'VBELN'.
+      CLEAR : GT_LIST.
+      READ TABLE GT_LIST INDEX PE_ROW.
+      CHECK SY-SUBRC EQ 0.
+      SET PARAMETER ID 'AUN' FIELD GT_LIST-VBELN.
+      CALL TRANSACTION 'VA03' AND SKIP FIRST SCREEN.
+
+    WHEN 'VBELN2'.
+      CLEAR : GT_LIST.
+      READ TABLE GT_LIST INDEX PE_ROW.
+      CHECK SY-SUBRC EQ 0.
+      SET PARAMETER ID 'AUN' FIELD GT_LIST-VBELN2.
+      CALL TRANSACTION 'VA03' AND SKIP FIRST SCREEN.
+
+    WHEN 'BSTKD'.
+      CLEAR : GT_LIST.
+      READ TABLE GT_LIST INDEX PE_ROW.
+      CHECK SY-SUBRC EQ 0.
+      SET PARAMETER ID 'BES' FIELD GT_LIST-BSTKD.
+      CALL TRANSACTION 'ME23N' AND SKIP FIRST SCREEN.
+  ENDCASE.
+
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form EVENT_TOP_OF_PAGE
+*&---------------------------------------------------------------------*
+FORM HANDLE_TOP_OF_PAGE  USING PE_DYNDOC_ID TYPE REF TO CL_DD_DOCUMENT.
+
+  DATA : LV_TEXT(255) TYPE C.
+
+  CLEAR : LV_TEXT.
+  DESCRIBE TABLE GT_LIST LINES DATA(LV_ROWS).
+  LV_TEXT = LV_ROWS.
+  CONDENSE LV_TEXT.
+  CONCATENATE TEXT-001 ' :' LV_TEXT INTO LV_TEXT SEPARATED BY SPACE.
+  CALL METHOD PE_DYNDOC_ID->ADD_TEXT
+    EXPORTING
+      TEXT         = LV_TEXT
+      SAP_FONTSIZE = 'MEDIUM'.
+
+  CALL METHOD PE_DYNDOC_ID->NEW_LINE.
+
+*  CLEAR : LV_TEXT.
+*  LV_TEXT = TEXT-004 && ' :' && GV_SUCCESS.
+*  CALL METHOD PE_DYNDOC_ID->ADD_TEXT
+*    EXPORTING
+*      TEXT         = LV_TEXT
+*      SAP_EMPHASIS = CL_DD_AREA=>HEADING
+*      SAP_COLOR    = CL_DD_AREA=>LIST_HEADING_INT.
+*
+*  CLEAR : LV_TEXT.
+*  LV_TEXT = TEXT-005 && ' :' && GV_FAILURE.
+*  CALL METHOD PE_DYNDOC_ID->ADD_TEXT
+*    EXPORTING
+*      TEXT         = LV_TEXT
+*      SAP_EMPHASIS = CL_DD_AREA=>HEADING
+*      SAP_COLOR    = CL_DD_AREA=>LIST_NEGATIVE_INT.
+
+
+  IF GO_HEADER IS INITIAL.
+
+    CREATE OBJECT GO_HEADER
+      EXPORTING
+        PARENT = G_PARENT_HTML.
+
+  ENDIF.
+
+  CALL METHOD PE_DYNDOC_ID->MERGE_DOCUMENT.
+  PE_DYNDOC_ID->HTML_CONTROL = GO_HEADER.
+
+  CALL METHOD PE_DYNDOC_ID->DISPLAY_DOCUMENT
+    EXPORTING
+      REUSE_CONTROL      = 'X'
+      PARENT             = G_PARENT_HTML
+    EXCEPTIONS
+      HTML_DISPLAY_ERROR = 1.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form GET_DATA
+*&---------------------------------------------------------------------*
+FORM GET_DATA .
+
+  DATA : LV_MARGIN TYPE ZE_MARGIN.
+
+  SELECT A~VBELN AS VBELN_VF,
+         A~KUNAG,
+         A~WAERK,
+         A~BUKRS,
+         A~FKDAT,
+         A~ZZKOINV,
+         A~VKORG,
+         A~VTWEG,
+         B~POSNR AS POSNR_VF,
+         B~MATNR,
+         B~ARKTX,
+         B~FKIMG,
+         B~VRKME,
+         B~NETWR AS NETWR1,
+         B~CMPRE,
+         B~BWTAR,
+         B~WERKS,
+         C~VBELV AS VBELN_VL,
+         C~POSNV AS POSNR_VL,
+         D~VBELV AS VBELN,
+         D~POSNV AS POSNR,
+         E~NAME_ORG1 AS KUNAG_TXT,
+         F~BSTKD,
+         G~LIFNR,
+         H~KUNNR AS KUNWE,
+         I~NAME_ORG1 AS LIFNR_TXT,
+         K~NAME_ORG1 AS KUNWE_TXT,
+         L~VBELN2,
+         L~POSNR2,
+         L~VBELN_VF2,
+         L~POSNR_VF2,
+         L~SEND,
+         L~ZDELETE,
+         L~ZUPDATE,
+         L~ZMARGIN,
+         M~POSEX,
+         N~CMPRE AS KBETR_AD,
+         N~NETWR AS NETWR_AD,
+         O~KPEIN,
+         O~KMEIN,
+         R~WADAT_IST
+
+  FROM VBRK AS A INNER JOIN  VBRP   AS B  ON A~VBELN = B~VBELN
+
+                 INNER JOIN  VBFA   AS C  ON B~VBELN = C~VBELN
+                                         AND B~POSNR = C~POSNN
+                                         AND C~VBTYP_V = 'J'
+
+                 INNER JOIN  VBFA   AS D  ON B~VBELN = D~VBELN
+                                         AND B~POSNR = D~POSNN
+                                         AND D~VBTYP_V = 'C'
+
+                 INNER JOIN  VBAP   AS M  ON D~VBELV = M~VBELN
+                                         AND D~POSNV = M~POSNR
+
+                 INNER JOIN  BUT000 AS E  ON A~KUNAG = E~PARTNER
+
+                 INNER JOIN  VBKD   AS F  ON D~VBELV = F~VBELN
+                                         AND F~POSNR = '000000'
+
+                 INNER JOIN  VBPA   AS G  ON D~VBELV = G~VBELN
+                                         AND G~POSNR = '000000'
+                                         AND G~PARVW = 'WL'
+
+                 INNER JOIN  BUT000 AS I  ON G~LIFNR = I~PARTNER
+
+                 INNER JOIN  VBPA   AS H  ON D~VBELV = H~VBELN
+                                         AND H~POSNR = '000000'
+                                         AND H~PARVW = 'WE'
+
+                 INNER JOIN   BUT000 AS K ON H~KUNNR = K~PARTNER
+
+                 INNER JOIN VBAK     AS J ON D~VBELV = J~VBELN
+                                         AND J~AUART = 'ZOR'
+
+            LEFT OUTER JOIN ZSDT0140 AS L ON B~VBELN = L~VBELN_VF
+                                         AND B~POSNR = L~POSNR_VF
+                                         AND L~ZDELETE = @SPACE
+
+            LEFT OUTER JOIN VBRP     AS N ON L~VBELN_VF2 = N~VBELN
+                                         AND L~POSNR_VF2 = N~POSNR
+
+            INNER JOIN PRCD_ELEMENTS AS O ON A~KNUMV  = O~KNUMV
+                                         AND B~POSNR  = O~KPOSN
+                                         AND O~KSCHL  = 'PR00'
+
+            INNER JOIN LIKP          AS R ON C~VBELV  = R~VBELN
+
+            INTO TABLE @DATA(LT_BILLING)
+            WHERE A~FKDAT IN @S_FKDAT
+              AND A~KUNAG IN @S_KUNAG
+              AND A~VKORG IN @S_VKORG
+              AND A~VTWEG IN @S_VTWEG
+              AND A~SFAKN EQ @SPACE
+              AND A~FKSTO EQ @SPACE
+              AND A~FKART EQ 'F2'
+              AND O~KHERK IN ( 'C' , 'A' ).
+
+  SORT LT_BILLING BY VBELN_VF POSNR_VF.
+  DELETE ADJACENT DUPLICATES FROM LT_BILLING COMPARING VBELN_VF POSNR_VF.
+
+  IF P_CRE = 'X'.
+*-- UPDATE가 되고 INTERFACE 생성모드에서 대상이 아님.
+    DELETE LT_BILLING WHERE ZUPDATE IS NOT INITIAL AND SEND IS NOT INITIAL.
+    DELETE LT_BILLING WHERE VBELN2  IS NOT INITIAL.
+  ELSE.
+    DELETE LT_BILLING WHERE VBELN2 IS INITIAL.
+    IF S_KOINV[] IS NOT INITIAL.
+      DELETE LT_BILLING WHERE ZZKOINV NOT IN S_KOINV.
+    ENDIF.
+  ENDIF.
+
+  CHECK LT_BILLING[] IS NOT INITIAL.
+
+  LOOP AT LT_BILLING INTO DATA(LS_BILLING).
+
+    MOVE-CORRESPONDING LS_BILLING TO GT_LIST.
+
+    CLEAR LV_MARGIN.
+    IF P_CRE = 'X'.
+      LV_MARGIN = P_MARGIN.
+      GT_LIST-KBETR_AD =  GT_LIST-CMPRE  * LV_MARGIN  / 100.
+      GT_LIST-NETWR_AD =  GT_LIST-FKIMG  * GT_LIST-KBETR_AD.
+    ELSE.
+      GT_LIST-ZMARGIN = LS_BILLING-ZMARGIN.
+      LV_MARGIN = LS_BILLING-ZMARGIN.
+    ENDIF.
+
+    GT_LIST-KBETR2   =  GT_LIST-CMPRE  - GT_LIST-KBETR_AD.
+    GT_LIST-NETWR2   =  GT_LIST-KBETR2 * GT_LIST-FKIMG.
+    IF GT_LIST-NETWR2 > 0.
+      GT_LIST-AUART = 'ZCR'.
+    ELSE.
+      GT_LIST-AUART = 'ZDR'.
+    ENDIF.
+
+    IF LS_BILLING-VBELN2 IS NOT INITIAL AND LS_BILLING-VBELN_VF2 IS NOT INITIAL.
+      GT_LIST-ICON = ICON_GREEN_LIGHT.
+    ELSE.
+      GT_LIST-ICON = ICON_LIGHT_OUT.
+    ENDIF.
+
+    APPEND GT_LIST. CLEAR GT_LIST.
+  ENDLOOP.
+
+  SORT GT_LIST BY VBELN_VF POSNR_VF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form GET_MESSAGE
+*&---------------------------------------------------------------------*
+FORM GET_MESSAGE  USING    PV_MSG
+                           PV_STAPA1
+                           PV_STAPA2
+                           PV_STAPA3
+                           PV_STAPA4
+                           PV_STAMID
+                           PV_STAMNO.
+
+  CLEAR PV_MSG.
+  CALL FUNCTION 'MESSAGE_TEXT_BUILD'
+    EXPORTING
+      MSGID               = PV_STAMID
+      MSGNR               = PV_STAMNO
+      MSGV1               = PV_STAPA1
+      MSGV2               = PV_STAPA2
+      MSGV3               = PV_STAPA3
+      MSGV4               = PV_STAPA4
+    IMPORTING
+      MESSAGE_TEXT_OUTPUT = PV_MSG.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form CREATE_SO_BILLING
+*&---------------------------------------------------------------------*
+FORM CREATE_SO_BILLING.
+
+  DATA : LT_VBRK  LIKE TABLE OF VBRK WITH HEADER LINE,
+         LV_CHECK.
+
+  CLEAR: GT_ROWS[], GS_ROWS.
+  CALL METHOD GO_GRID->GET_SELECTED_ROWS
+    IMPORTING
+      ET_INDEX_ROWS = GT_ROWS.
+
+  IF GT_ROWS[] IS INITIAL.
+    MESSAGE S004 DISPLAY LIKE 'E'.
+    EXIT.
+  ENDIF.
+
+  PERFORM POPUP_MSG USING TEXT-P01
+                          TEXT-P02
+                          LV_CHECK.
+
+  CHECK LV_CHECK = '1'.
+
+  _CLEAR : LT_VBRK, GT_CREDIT, GT_DEBIT.
+
+  LOOP AT GT_ROWS INTO GS_ROWS.
+    READ TABLE GT_LIST INDEX GS_ROWS-INDEX.
+    CHECK GT_LIST-ICON NE ICON_GREEN_LIGHT.
+    LT_VBRK-VBELN = GT_LIST-VBELN_VF.
+    COLLECT LT_VBRK. CLEAR LT_VBRK.
+  ENDLOOP.
+
+  LOOP AT LT_VBRK.
+    LOOP AT GT_LIST WHERE VBELN_VF = LT_VBRK-VBELN.
+      CHECK GT_LIST-KBETR2 NE 0.
+      IF GT_LIST-KBETR_AD > 0.
+        MOVE-CORRESPONDING GT_LIST TO GT_CREDIT.
+        APPEND GT_CREDIT. CLEAR GT_CREDIT.
+      ELSE.
+        MOVE-CORRESPONDING GT_LIST TO GT_DEBIT.
+        GT_DEBIT-KBETR_AD = GT_DEBIT-KBETR_AD * -1.
+        APPEND GT_DEBIT. CLEAR GT_DEBIT.
+      ENDIF.
+    ENDLOOP.
+  ENDLOOP.
+
+  IF GT_CREDIT[] IS INITIAL AND GT_DEBIT[] IS INITIAL.
+    MESSAGE S016 DISPLAY LIKE 'E'.
+    EXIT.
+  ENDIF.
+
+  SORT GT_CREDIT BY VBELN_VF POSNR_VF.
+  SORT GT_DEBIT BY VBELN_VF POSNR_VF.
+
+  LOOP AT LT_VBRK.
+    READ TABLE GT_CREDIT WITH KEY VBELN_VF = LT_VBRK-VBELN.
+    IF SY-SUBRC = 0.
+      IF GT_CREDIT-VBELN2 IS INITIAL.
+        PERFORM CLEAR_PARAMETERS.
+        PERFORM SET_HEADER TABLES GT_CREDIT
+                            USING 'ZCR'.
+        LOOP AT GT_CREDIT WHERE VBELN_VF = LT_VBRK-VBELN.
+          PERFORM SET_ITEM TABLES GT_CREDIT.
+        ENDLOOP.
+        PERFORM CALL_SO_BAPI  TABLES GT_CREDIT
+                              USING 'ZCR'.
+        IF GV_SALESDOCUMENT IS INITIAL.
+        ELSE.
+          PERFORM CALL_BILLING_BAPI TABLES GT_CREDIT
+                                    USING 'ZCR'.
+          PERFORM SAVE_DB_TABLE USING 'ZCR' LT_VBRK-VBELN.
+        ENDIF.
+      ELSE.
+        PERFORM CALL_BILLING_BAPI TABLES GT_CREDIT
+                                   USING 'ZCR'.
+      ENDIF.
+    ENDIF.
+
+    READ TABLE GT_DEBIT WITH KEY VBELN_VF = LT_VBRK-VBELN.
+    IF SY-SUBRC = 0.
+      IF GT_CREDIT-VBELN2 IS INITIAL.
+        PERFORM CLEAR_PARAMETERS.
+        PERFORM SET_HEADER TABLES GT_DEBIT
+                            USING 'ZDR'.
+        LOOP AT GT_DEBIT WHERE VBELN_VF = LT_VBRK-VBELN.
+          PERFORM SET_ITEM TABLES GT_DEBIT.
+        ENDLOOP.
+        PERFORM CALL_SO_BAPI  TABLES GT_DEBIT
+                              USING 'ZDR'.
+        IF GV_SALESDOCUMENT IS INITIAL.
+        ELSE.
+          PERFORM CALL_BILLING_BAPI TABLES GT_DEBIT
+                                    USING 'ZDR'.
+          PERFORM SAVE_DB_TABLE USING 'ZDR' LT_VBRK-VBELN.
+        ENDIF.
+      ELSE.
+        PERFORM CALL_BILLING_BAPI TABLES GT_DEBIT
+                                   USING 'ZDR'.
+      ENDIF.
+    ENDIF.
+  ENDLOOP.
+
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form CLEAR_PARAMETERS
+*&---------------------------------------------------------------------*
+FORM CLEAR_PARAMETERS .
+
+* "---- clear ---
+  CLEAR: GS_ORDER_HEADER_IN,
+         GS_ORDER_HEADER_INX,
+         GT_ORDER_ITEMS_IN,       GT_ORDER_ITEMS_IN[],
+         GT_ORDER_ITEMS_INX,      GT_ORDER_ITEMS_INX[],
+         GT_ORDER_SCHEDULES_IN,   GT_ORDER_SCHEDULES_IN[],
+         GT_ORDER_SCHEDULES_INX,  GT_ORDER_SCHEDULES_INX[],
+         GT_ORDER_PARTNERS,       GT_ORDER_PARTNERS[],
+         GT_ORDER_CONDITIONS_IN,  GT_ORDER_CONDITIONS_IN[],
+         GT_ORDER_CONDITIONS_INX, GT_ORDER_CONDITIONS_INX[],
+         GT_RETURN,               GT_RETURN[],
+         GT_TEXT,                 GT_TEXT[],
+         GV_POSNR.
+
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form SET_HEADER
+*&---------------------------------------------------------------------*
+FORM SET_HEADER TABLES   PT_TAB STRUCTURE GT_CREDIT
+                USING PV_AUART.
+
+  GS_ORDER_HEADER_IN-DOC_TYPE = PV_AUART.
+  GS_ORDER_HEADER_INX-DOC_TYPE   = 'X'.
+
+  GS_ORDER_HEADER_IN-SALES_ORG  = PT_TAB-VKORG.
+  GS_ORDER_HEADER_INX-SALES_ORG  = 'X'.
+
+  GS_ORDER_HEADER_IN-DISTR_CHAN = PT_TAB-VTWEG.
+  GS_ORDER_HEADER_INX-DISTR_CHAN = 'X'.
+
+  GS_ORDER_HEADER_IN-DIVISION   = '00'.
+  GS_ORDER_HEADER_INX-DIVISION   = 'X'.
+
+  GS_ORDER_HEADER_IN-PURCH_NO_C = PT_TAB-BSTKD.
+  GS_ORDER_HEADER_INX-PURCH_NO_C = 'X'.
+
+  GS_ORDER_HEADER_IN-ORD_REASON = '03'.
+  GS_ORDER_HEADER_INX-ORD_REASON = 'X'.
+
+  GS_ORDER_HEADER_IN-REF_DOC = PT_TAB-VBELN_VF.
+  GS_ORDER_HEADER_INX-REF_DOC = 'X'.
+
+  GS_ORDER_HEADER_IN-REFDOC_CAT = 'M'.
+  GS_ORDER_HEADER_INX-REFDOC_CAT = 'X'.
+
+  GS_ORDER_HEADER_IN-BILL_BLOCK = SPACE.
+  GS_ORDER_HEADER_INX-REFDOC_CAT = 'X'.
+
+  GS_ORDER_HEADER_IN-PRICE_DATE = PT_TAB-FKDAT.
+  GS_ORDER_HEADER_INX-PRICE_DATE = 'X'.
+
+  GS_ORDER_HEADER_IN-BILL_DATE = PT_TAB-FKDAT.
+  GS_ORDER_HEADER_INX-BILL_DATE = 'X'.
+
+*" Partner
+  GT_ORDER_PARTNERS-PARTN_ROLE   = 'AG'.     "판매처 (Sold-to party)
+  GT_ORDER_PARTNERS-PARTN_NUMB   = PT_TAB-KUNAG.
+  APPEND GT_ORDER_PARTNERS. CLEAR GT_ORDER_PARTNERS.
+
+  GT_ORDER_PARTNERS-PARTN_ROLE   = 'WE'.     "납품처 (Ship-to party)
+  GT_ORDER_PARTNERS-PARTN_NUMB   = PT_TAB-KUNWE.
+  APPEND GT_ORDER_PARTNERS. CLEAR GT_ORDER_PARTNERS.
+
+  GT_ORDER_PARTNERS-PARTN_ROLE   = 'WL'.     "공급업체 (Goods supplier)
+  GT_ORDER_PARTNERS-PARTN_NUMB   = PT_TAB-LIFNR.
+  APPEND GT_ORDER_PARTNERS. CLEAR GT_ORDER_PARTNERS.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form SET_ITEM
+*&---------------------------------------------------------------------*
+FORM SET_ITEM TABLES PT_TAB STRUCTURE GT_CREDIT.
+
+  ADD 10 TO GV_POSNR.
+  GT_ORDER_ITEMS_IN-ITM_NUMBER      = GV_POSNR.  "순번
+  GT_ORDER_ITEMS_INX-ITM_NUMBER     = GV_POSNR.
+
+  GT_ORDER_ITEMS_IN-MATERIAL_LONG   = PT_TAB-MATNR.  "자재코드
+  GT_ORDER_ITEMS_INX-MATERIAL_LONG  = 'X'.
+
+  GT_ORDER_ITEMS_IN-TARGET_QTY      = PT_TAB-FKIMG.
+  GT_ORDER_ITEMS_INX-TARGET_QTY     = 'X'.
+
+  GT_ORDER_ITEMS_IN-SALES_UNIT      = PT_TAB-VRKME.
+  GT_ORDER_ITEMS_INX-SALES_UNIT     = 'X'.
+
+  GT_ORDER_ITEMS_IN-PLANT           = PT_TAB-WERKS.  "플랜트.
+  GT_ORDER_ITEMS_INX-PLANT          = 'X'.
+
+  GT_ORDER_ITEMS_IN-VAL_TYPE        = PT_TAB-BWTAR.  "Val. Type
+  GT_ORDER_ITEMS_INX-VAL_TYPE       = 'X'.
+
+  GT_ORDER_ITEMS_IN-REF_DOC         = PT_TAB-VBELN_VF.
+  GT_ORDER_ITEMS_INX-REF_DOC        = 'X'.
+
+  GT_ORDER_ITEMS_IN-REF_DOC_IT      = PT_TAB-POSNR_VF.
+  GT_ORDER_ITEMS_INX-REF_DOC_IT     = 'X'.
+
+  GT_ORDER_ITEMS_IN-REF_DOC_CA      = 'M'.
+  GT_ORDER_ITEMS_INX-REF_DOC_CA     = 'X'.
+
+  APPEND GT_ORDER_ITEMS_IN.      CLEAR GT_ORDER_ITEMS_IN.
+  APPEND GT_ORDER_ITEMS_INX.     CLEAR GT_ORDER_ITEMS_INX.
+
+  GT_ORDER_SCHEDULES_IN-ITM_NUMBER  = GV_POSNR.
+  GT_ORDER_SCHEDULES_INX-ITM_NUMBER = GV_POSNR.
+
+*  GT_ORDER_SCHEDULES_IN-SCHED_LINE     = 1.
+*  GT_ORDER_SCHEDULES_INX-SCHED_LINE    = 1.
+
+  GT_ORDER_SCHEDULES_IN-REQ_QTY        = PT_TAB-FKIMG.  "수량 .
+  GT_ORDER_SCHEDULES_INX-REQ_QTY       = 'X'.
+
+  APPEND GT_ORDER_SCHEDULES_IN.  CLEAR GT_ORDER_SCHEDULES_IN.
+  APPEND GT_ORDER_SCHEDULES_INX. CLEAR GT_ORDER_SCHEDULES_INX.
+
+  GT_ORDER_CONDITIONS_IN-ITM_NUMBER  = GV_POSNR.  "조건품목번호
+  GT_ORDER_CONDITIONS_INX-ITM_NUMBER = 'X'.       "조건품목번호
+
+  GT_ORDER_CONDITIONS_IN-COND_TYPE   = 'PR00'.
+  GT_ORDER_CONDITIONS_INX-COND_TYPE  = 'X'.       "조건유형
+
+  GT_ORDER_CONDITIONS_IN-COND_VALUE  = PT_TAB-KBETR_AD. "조건 금액.
+  GT_ORDER_CONDITIONS_INX-COND_VALUE = 'X'.       "조건 금액
+
+  GT_ORDER_CONDITIONS_IN-CURRENCY    = PT_TAB-WAERK. "통화 단위.
+  GT_ORDER_CONDITIONS_INX-CURRENCY   = 'X'.       "통화 단위.
+
+  APPEND GT_ORDER_CONDITIONS_IN.  CLEAR GT_ORDER_CONDITIONS_IN.
+  APPEND GT_ORDER_CONDITIONS_INX. CLEAR GT_ORDER_CONDITIONS_INX.
+
+  GT_ORDER_PARTNERS-ITM_NUMBER   = GV_POSNR.       "Goods supplier
+  GT_ORDER_PARTNERS-PARTN_ROLE   = 'ZS'.           "Goods supplier
+  GT_ORDER_PARTNERS-PARTN_NUMB   = GT_LIST-LIFNR.
+  APPEND GT_ORDER_PARTNERS. CLEAR GT_ORDER_PARTNERS.
+
+  GT_LIST-POSNR2 = GV_POSNR.
+  GT_LIST-POSNR_VF2 = GV_POSNR.
+  MODIFY GT_LIST TRANSPORTING POSNR2 POSNR_VF2
+                  WHERE VBELN_VF = PT_TAB-VBELN_VF
+                   AND POSNR_VF = PT_TAB-POSNR_VF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form CALL_SO_BAPI
+*&---------------------------------------------------------------------*
+FORM CALL_SO_BAPI   TABLES PT_TAB STRUCTURE GT_CREDIT
+                    USING PV_AUART.
+
+  CLEAR GV_SALESDOCUMENT.
+  CALL FUNCTION 'SD_SALESDOCUMENT_CREATE'
+    EXPORTING
+      SALES_HEADER_IN      = GS_ORDER_HEADER_IN
+      SALES_HEADER_INX     = GS_ORDER_HEADER_INX
+    IMPORTING
+      SALESDOCUMENT_EX     = GV_SALESDOCUMENT
+    TABLES
+      RETURN               = GT_RETURN
+      SALES_ITEMS_IN       = GT_ORDER_ITEMS_IN
+      SALES_ITEMS_INX      = GT_ORDER_ITEMS_INX
+      SALES_SCHEDULES_IN   = GT_ORDER_SCHEDULES_IN
+      SALES_SCHEDULES_INX  = GT_ORDER_SCHEDULES_INX
+      SALES_PARTNERS       = GT_ORDER_PARTNERS
+      SALES_CONDITIONS_IN  = GT_ORDER_CONDITIONS_IN
+      SALES_CONDITIONS_INX = GT_ORDER_CONDITIONS_INX.
+
+  IF GV_SALESDOCUMENT IS NOT INITIAL.
+    CALL FUNCTION 'BAPI_TRANSACTION_COMMIT'
+      EXPORTING
+        WAIT = 'X'.
+
+    GT_LIST-MESSAGE = TEXT-S01 && '(' && GV_SALESDOCUMENT && ')'.
+    GT_LIST-VBELN2   =  GV_SALESDOCUMENT.
+    MODIFY GT_LIST TRANSPORTING VBELN2 MESSAGE WHERE VBELN_VF = PT_TAB-VBELN_VF
+                                                 AND AUART    = PV_AUART.
+  ELSE.
+    CALL FUNCTION 'BAPI_TRANSACTION_ROLLBACK'.
+    CLEAR GT_RETURN.
+    READ TABLE GT_RETURN WITH KEY TYPE = 'E'.
+    IF SY-SUBRC = 0.
+      GT_LIST-MESSAGE = GT_RETURN-MESSAGE.
+      GT_LIST-ICON = ICON_RED_LIGHT.
+      CLEAR : GT_LIST-POSNR2, GT_LIST-POSNR_VF2.
+      MODIFY GT_LIST TRANSPORTING MESSAGE ICON POSNR2 WHERE VBELN_VF = PT_TAB-VBELN_VF
+                                                        AND AUART    = PV_AUART.
+    ENDIF.
+  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form CALL_BILLING_BAPI
+*&---------------------------------------------------------------------*
+FORM CALL_BILLING_BAPI  TABLES PT_TAB STRUCTURE GT_CREDIT
+                        USING PV_AUART.
+
+
+  DATA : LT_BILLING  TYPE TABLE OF BAPIVBRK WITH HEADER LINE,
+         LT_RETURN   TYPE TABLE OF BAPIRET1 WITH HEADER LINE,
+         LT_SUCCESS  TYPE TABLE OF BAPIVBRKSUCCESS WITH HEADER LINE,
+         LV_MSG(225).
+
+  CLEAR : LT_BILLING, LT_BILLING[], LT_RETURN, LT_RETURN[],
+          LT_SUCCESS, LT_SUCCESS[], LV_MSG.
+
+  IF GV_SALESDOCUMENT IS INITIAL.
+    GV_SALESDOCUMENT = PT_TAB-VBELN2.
+  ENDIF.
+
+  LT_BILLING-REF_DOC = GV_SALESDOCUMENT.
+  LT_BILLING-REF_DOC_CA = 'K'.
+  APPEND LT_BILLING.
+  CLEAR LT_BILLING.
+
+  CALL FUNCTION 'BAPI_BILLINGDOC_CREATEMULTIPLE'
+    TABLES
+      BILLINGDATAIN = LT_BILLING
+      RETURN        = LT_RETURN
+      SUCCESS       = LT_SUCCESS.
+
+  " 대금청구 문서번호
+  READ TABLE LT_SUCCESS INDEX 1.
+  IF SY-SUBRC = 0.
+    CALL FUNCTION 'BAPI_TRANSACTION_COMMIT'
+      EXPORTING
+        WAIT = 'X'.
+
+    GT_LIST-VBELN_VF2 = LT_SUCCESS-BILL_DOC.
+    GT_LIST-ICON = ICON_GREEN_LIGHT.
+    CLEAR GT_LIST-MESSAGE.
+    MODIFY GT_LIST TRANSPORTING VBELN_VF2 ICON MESSAGE WHERE VBELN_VF = PT_TAB-VBELN_VF
+                                                         AND AUART    = PV_AUART.
+    DO GV_TIMES TIMES.
+      WAIT UP TO GV_SEC SECONDS.
+      UPDATE VBRK SET ZZKOINV = PT_TAB-ZZKOINV
+      WHERE VBELN = LT_SUCCESS-BILL_DOC.
+      IF SY-SUBRC = 0.
+        EXIT.
+      ENDIF.
+    ENDDO.
+  ELSE.
+
+    READ TABLE LT_RETURN INDEX 1.
+    IF SY-SUBRC = 0.
+      CALL FUNCTION 'BAPI_TRANSACTION_ROLLBACK'.
+
+      CALL FUNCTION 'MESSAGE_TEXT_BUILD'
+        EXPORTING
+          MSGID               = LT_RETURN-ID
+          MSGNR               = LT_RETURN-NUMBER
+          MSGV1               = LT_RETURN-MESSAGE_V1
+          MSGV2               = LT_RETURN-MESSAGE_V2
+          MSGV3               = LT_RETURN-MESSAGE_V3
+          MSGV4               = LT_RETURN-MESSAGE_V4
+        IMPORTING
+          MESSAGE_TEXT_OUTPUT = LV_MSG.
+    ENDIF.
+
+    GT_LIST-ICON = ICON_RED_LIGHT.
+    GT_LIST-MESSAGE  = LV_MSG.
+    CLEAR GT_LIST-POSNR_VF2.
+    MODIFY GT_LIST TRANSPORTING POSNR_VF2 ICON MESSAGE WHERE VBELN_VF = PT_TAB-VBELN_VF
+                                                         AND AUART    = PV_AUART.
+
+  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form SAVE_DB_TABLE
+*&---------------------------------------------------------------------*
+FORM SAVE_DB_TABLE USING PV_AUART
+                         PV_VBELN_VF.
+
+  DATA : LT_0140 LIKE TABLE OF ZSDT0140 WITH HEADER LINE.
+
+  _CLEAR LT_0140.
+
+  LOOP AT GT_LIST WHERE VBELN_VF = PV_VBELN_VF
+                    AND    AUART = PV_AUART.
+    MOVE-CORRESPONDING GT_LIST TO LT_0140.
+    IF P_MARGIN IS INITIAL.
+      LT_0140-ZMARGIN = GT_LIST-ZMARGIN.
+    ELSE.
+      LT_0140-ZMARGIN = P_MARGIN.
+    ENDIF.
+    LT_0140-ERDAT = SY-DATUM.
+    LT_0140-ERZET = SY-UZEIT.
+    LT_0140-ERNAM = SY-UNAME.
+    APPEND LT_0140. CLEAR LT_0140.
+  ENDLOOP.
+
+  IF LT_0140[] IS NOT INITIAL.
+    MODIFY ZSDT0140 FROM TABLE LT_0140.
+  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form CREATE_BILLING
+*&---------------------------------------------------------------------*
+FORM CREATE_BILLING .
+
+  DATA : LT_VBRK  LIKE TABLE OF VBRK WITH HEADER LINE,
+         LV_CHECK,
+         LV_ERROR.
+
+  CLEAR: GT_ROWS[], GS_ROWS.
+  CALL METHOD GO_GRID->GET_SELECTED_ROWS
+    IMPORTING
+      ET_INDEX_ROWS = GT_ROWS.
+
+  IF GT_ROWS[] IS INITIAL.
+    MESSAGE S004 DISPLAY LIKE 'E'.
+    EXIT.
+  ENDIF.
+
+  PERFORM POPUP_MSG USING TEXT-P01
+                          TEXT-P02
+                          LV_CHECK.
+
+  CHECK LV_CHECK = '1'.
+
+  _CLEAR : LT_VBRK, GT_CREDIT, GT_DEBIT.
+  CLEAR : LV_ERROR.
+
+  LOOP AT GT_ROWS INTO GS_ROWS.
+    READ TABLE GT_LIST INDEX GS_ROWS-INDEX.
+    IF GT_LIST-VBELN_VF2 IS INITIAL.
+      LT_VBRK-VBELN = GT_LIST-VBELN_VF.
+      COLLECT LT_VBRK. CLEAR LT_VBRK.
+    ELSE.
+      LV_ERROR = 'X'.
+    ENDIF.
+  ENDLOOP.
+
+  IF LV_ERROR IS NOT INITIAL.
+    MESSAGE S000 WITH TEXT-E01 TEXT-E06 DISPLAY LIKE 'E'.
+    EXIT.
+  ENDIF.
+
+  _CLEAR : GT_CREDIT, GT_DEBIT.
+
+  LOOP AT LT_VBRK.
+    LOOP AT GT_LIST WHERE VBELN_VF = LT_VBRK-VBELN AND AUART = 'ZCR'.
+      GT_LIST-POSNR_VF2 = GT_LIST-POSNR2.
+      MODIFY GT_LIST TRANSPORTING POSNR_VF2.
+      ON CHANGE OF GT_LIST-VBELN2.
+        MOVE-CORRESPONDING LT_VBRK TO GT_CREDIT.
+        PERFORM CALL_BILLING_BAPI TABLES GT_CREDIT
+                                  USING 'ZCR'.
+        PERFORM SAVE_DB_TABLE USING 'ZCR' LT_VBRK-VBELN.
+      ENDON.
+    ENDLOOP.
+  ENDLOOP.
+
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form CANCEL_DOCUMENTS
+*&---------------------------------------------------------------------*
+FORM CANCEL_DOCUMENTS .
+
+  DATA : BEGIN OF LT_KEY OCCURS 0,
+           VBELN_VF LIKE VBRK-VBELN,
+           VBELN    LIKE VBAK-VBELN,
+           ERR,
+         END OF LT_KEY,
+         LV_CHECK,
+         LV_ERROR.
+
+  DATA : LV_MODE LIKE CTU_PARAMS-DISMODE.
+
+  CLEAR: GT_ROWS[], GS_ROWS.
+  CALL METHOD GO_GRID->GET_SELECTED_ROWS
+    IMPORTING
+      ET_INDEX_ROWS = GT_ROWS.
+
+  IF GT_ROWS[] IS INITIAL.
+    MESSAGE S004 DISPLAY LIKE 'E'.
+    EXIT.
+  ENDIF.
+
+  PERFORM POPUP_MSG USING TEXT-P01
+                          TEXT-P02
+                          LV_CHECK.
+
+  CHECK LV_CHECK = '1'.
+
+
+  _CLEAR : LT_KEY.
+  CLEAR : LV_ERROR.
+
+  LOOP AT GT_ROWS INTO GS_ROWS.
+    READ TABLE GT_LIST INDEX GS_ROWS-INDEX.
+    IF GT_LIST-VBELN_VF2 IS INITIAL AND GT_LIST-VBELN2 IS INITIAL.
+      LV_ERROR = 'X'.
+    ELSE.
+      LT_KEY-VBELN_VF = GT_LIST-VBELN_VF2.
+      LT_KEY-VBELN = GT_LIST-VBELN2.
+      COLLECT LT_KEY. CLEAR LT_KEY.
+    ENDIF.
+  ENDLOOP.
+
+  IF LV_ERROR IS NOT INITIAL.
+    MESSAGE S000 WITH TEXT-E02 DISPLAY LIKE 'E'.
+    EXIT.
+  ENDIF.
+
+** BDC MODE
+  CLEAR GS_CTU_PARAMS.
+  LV_MODE = 'N'.
+  GS_CTU_PARAMS-DISMODE  = LV_MODE.
+  GS_CTU_PARAMS-UPDMODE  = 'S'.
+  GS_CTU_PARAMS-RACOMMIT = 'X'.
+
+  LOOP AT LT_KEY.
+    IF LT_KEY-VBELN_VF IS INITIAL.
+      PERFORM CANC_SO USING LT_KEY-VBELN.
+
+    ELSE.
+      PERFORM CANC_BILLING USING LT_KEY-VBELN_VF
+                           LT_KEY-ERR.
+      CHECK LT_KEY-ERR IS INITIAL.
+      PERFORM CANC_SO USING LT_KEY-VBELN.
+    ENDIF.
+  ENDLOOP.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form BDCDATA_SET
+*&---------------------------------------------------------------------*
+FORM BDCDATA_SET  USING P_START P_OBJECT P_VALUE.
+
+  CLEAR GT_BDCDATA.
+
+  IF P_START = 'X'.
+    GT_BDCDATA-DYNBEGIN = P_START.
+    GT_BDCDATA-PROGRAM = P_OBJECT.
+    GT_BDCDATA-DYNPRO = P_VALUE.
+  ELSE.
+    GT_BDCDATA-FNAM = P_OBJECT.
+    GT_BDCDATA-FVAL = P_VALUE.
+  ENDIF.
+
+  APPEND GT_BDCDATA.
+  CLEAR GT_BDCDATA.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form CANC_BILLING
+*&---------------------------------------------------------------------*
+FORM CANC_BILLING USING PV_VBELN PV_ERR.
+
+  DATA:LV_MSG(220).
+  _CLEAR : GT_BDCDATA, GT_BDCMSG.
+
+  PERFORM BDCDATA_SET  USING:
+              'X'  'SAPMV60A'           '0102',
+              ' '  'BDC_OKCODE'         '=SICH',
+              ' '  'KOMFK-VBELN(01)'    PV_VBELN.
+
+** CALL TRANSACTION
+  CLEAR : GT_BDCMSG, GT_BDCMSG[].
+  CALL TRANSACTION 'VF11'
+             USING GT_BDCDATA
+             OPTIONS FROM GS_CTU_PARAMS
+             MESSAGES INTO GT_BDCMSG.
+
+  CLEAR GT_BDCMSG.
+  READ TABLE GT_BDCMSG WITH KEY MSGTYP = 'S' MSGID = 'VF' MSGNR = '311'.
+  IF SY-SUBRC = 0.
+*    MODIFY GT_LIST TRANSPORTING MESSAGE WHERE VBELN_VF2 = PV_VBELN.
+
+  ELSE.
+***  오류 발생시.
+    CLEAR LV_MSG.
+    LOOP AT GT_BDCMSG.
+      CALL FUNCTION 'MESSAGE_TEXT_BUILD'
+        EXPORTING
+          MSGID               = GT_BDCMSG-MSGID
+          MSGNR               = GT_BDCMSG-MSGNR
+          MSGV1               = GT_BDCMSG-MSGV1
+          MSGV2               = GT_BDCMSG-MSGV2
+          MSGV3               = GT_BDCMSG-MSGV3
+          MSGV4               = GT_BDCMSG-MSGV4
+        IMPORTING
+          MESSAGE_TEXT_OUTPUT = LV_MSG.
+      IF LV_MSG IS INITIAL.
+      ELSE.
+        LV_MSG = LV_MSG && '/' && LV_MSG.
+      ENDIF.
+    ENDLOOP.
+    GT_LIST-MESSAGE = 'Cancel billing failed!' && '/' && LV_MSG.
+    MODIFY GT_LIST TRANSPORTING MESSAGE.
+    PV_ERR = 'X'.
+  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form CANC_SO
+*&---------------------------------------------------------------------*
+FORM CANC_SO  USING PV_VBELN.
+
+  DATA : LS_HEAD   LIKE BAPISDH1,
+         LS_HEADX  LIKE BAPISDH1X,
+         LT_ITEM   TYPE STANDARD TABLE OF BAPISDITM  WITH HEADER LINE,
+         LT_ITEMX  TYPE STANDARD TABLE OF BAPISDITMX WITH HEADER LINE,
+         LV_VBELN  LIKE BAPIVBELN-VBELN,
+         LT_RETURN LIKE BAPIRET2   OCCURS 0 WITH HEADER LINE.
+
+  CLEAR :  LS_HEAD, LS_HEADX, LV_VBELN.
+
+  _CLEAR : LT_RETURN, LT_ITEM, LT_ITEMX.
+
+  LV_VBELN = PV_VBELN.
+  LS_HEADX-UPDATEFLAG = 'U'.
+
+  LOOP AT GT_LIST WHERE VBELN2 = PV_VBELN.
+    LT_ITEM-ITM_NUMBER = GT_LIST-POSNR2.
+    LT_ITEM-MATERIAL   = GT_LIST-MATNR.
+    LT_ITEM-REASON_REJ = 'ZB'.
+    APPEND LT_ITEM. CLEAR LT_ITEM.
+
+    LT_ITEMX-ITM_NUMBER = GT_LIST-POSNR2.
+    LT_ITEMX-MATERIAL   = ABAP_ON.
+    LT_ITEMX-REASON_REJ = ABAP_ON.
+    LT_ITEMX-UPDATEFLAG = 'U'.
+    APPEND LT_ITEMX. CLEAR LT_ITEMX.
+  ENDLOOP.
+
+  CALL FUNCTION 'BAPI_SALESORDER_CHANGE'
+    EXPORTING
+      SALESDOCUMENT    = LV_VBELN
+      ORDER_HEADER_INX = LS_HEADX
+    TABLES
+      RETURN           = LT_RETURN
+      ORDER_ITEM_IN    = LT_ITEM
+      ORDER_ITEM_INX   = LT_ITEMX.
+
+  READ TABLE LT_RETURN WITH KEY TYPE   = 'S'
+                                ID     = 'V1'.
+  IF SY-SUBRC EQ 0.
+    CALL FUNCTION 'BAPI_TRANSACTION_COMMIT'
+      EXPORTING
+        WAIT = 'X'.
+
+*    GT_LIST-MESSAGE = TEXT-S02.
+*    MODIFY GT_LIST TRANSPORTING MESSAGE WHERE VBELN2 = PV_VBELN.
+    DELETE GT_LIST WHERE VBELN2 = PV_VBELN.
+
+    UPDATE ZSDT0140 SET ZDELETE = 'X'
+                        AENAM   = SY-UNAME
+                        AEDAT   = SY-DATUM
+                        AEZET   = SY-UZEIT
+                  WHERE VBELN2  = PV_VBELN.
+
+  ELSE.
+    CALL FUNCTION 'BAPI_TRANSACTION_ROLLBACK'.
+
+    GT_LIST-MESSAGE = TEXT-E03.
+    MODIFY GT_LIST TRANSPORTING MESSAGE WHERE VBELN2 = PV_VBELN.
+  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form SEND_DATA
+*&---------------------------------------------------------------------*
+FORM SEND_DATA .
+
+  DATA: LO_CLIENT  TYPE REF TO IF_HTTP_CLIENT,
+        LV_CONTENT TYPE STRING,
+        LV_URL     TYPE STRING,
+        LV_JSON    TYPE STRING,
+        LV_RESULT  TYPE STRING,
+        LV_CHECK,
+        LV_ERR.
+  DATA : LT_VBELN LIKE VBAK-VBELN OCCURS 0 WITH HEADER LINE.
+
+  CLEAR: GT_ROWS[], GS_ROWS.
+  CALL METHOD GO_GRID->GET_SELECTED_ROWS
+    IMPORTING
+      ET_INDEX_ROWS = GT_ROWS.
+
+  IF GT_ROWS[] IS INITIAL.
+    MESSAGE S004 DISPLAY LIKE 'E'.
+    EXIT.
+  ENDIF.
+
+  PERFORM POPUP_MSG USING TEXT-P03
+                          TEXT-P04
+                          LV_CHECK.
+  CHECK LV_CHECK = '1'.
+
+  _CLEAR : LT_VBELN.
+  CLEAR : GS_DATA, GT_DATA, LV_ERR.
+
+  LOOP AT GT_ROWS INTO GS_ROWS.
+    READ TABLE GT_LIST INDEX GS_ROWS-INDEX.
+    IF GT_LIST-ICON = ICON_GREEN_LIGHT AND GT_LIST-SEND IS INITIAL.
+      MOVE GT_LIST-VBELN2 TO LT_VBELN.
+      COLLECT LT_VBELN. CLEAR LT_VBELN.
+    ELSE.
+      LV_ERR = 'X'.
+      EXIT.
+    ENDIF.
+  ENDLOOP.
+
+  IF LV_ERR = 'X'.
+    MESSAGE S000 WITH TEXT-E05 DISPLAY LIKE 'E'.
+    EXIT.
+  ENDIF.
+
+  LOOP AT LT_VBELN.
+    LOOP AT GT_LIST WHERE VBELN2 = LT_VBELN.
+      MOVE-CORRESPONDING GT_LIST TO GS_DATA.
+      GS_DATA-VBELN_S  = GT_LIST-VBELN2.
+      GS_DATA-POSNR_S  = GT_LIST-POSNR2.
+      GS_DATA-KWMENG   = GT_LIST-FKIMG.
+      GS_DATA-NETPR    = GT_LIST-CMPRE.
+      GS_DATA-NETWR    = GT_LIST-NETWR1.
+      GS_DATA-NETPR_S  = GT_LIST-KBETR2.
+      GS_DATA-NETWR_S  = GT_LIST-NETWR2.
+
+      IF GS_DATA-NETPR_S < 0.
+        CALL FUNCTION 'CLOI_PUT_SIGN_IN_FRONT'
+          CHANGING
+            VALUE = GS_DATA-NETPR_S.
+      ENDIF.
+      IF GS_DATA-NETWR_S < 0.
+        CALL FUNCTION 'CLOI_PUT_SIGN_IN_FRONT'
+          CHANGING
+            VALUE = GS_DATA-NETWR_S.
+      ENDIF.
+
+      APPEND GS_DATA TO GT_DATA. CLEAR GS_DATA.
+    ENDLOOP.
+  ENDLOOP.
+
+
+  CHECK GT_DATA[] IS NOT INITIAL.
+
+
+  CLEAR GV_IF_TSP.
+  PERFORM GET_TIMESTAMP CHANGING GV_IF_TSP.
+
+  CLEAR GV_API.
+  CASE SY-SYSID.
+    WHEN 'ZUD'.
+      GV_API = GV_API_D.
+    WHEN 'ZUQ'.
+      GV_API = GV_API_Q.
+    WHEN 'ZUP'.
+      GV_API = GV_API_P.
+  ENDCASE.
+
+  CLEAR LO_CLIENT.
+  CALL METHOD CL_HTTP_CLIENT=>CREATE_BY_URL
+    EXPORTING
+      URL                = GV_API
+    IMPORTING
+      CLIENT             = LO_CLIENT
+    EXCEPTIONS
+      ARGUMENT_NOT_FOUND = 1
+      PLUGIN_NOT_ACTIVE  = 2
+      INTERNAL_ERROR     = 3
+      OTHERS             = 4.
+
+  IF SY-SUBRC <> 0.
+    MESSAGE S012 DISPLAY LIKE 'E'.
+    EXIT.
+  ENDIF.
+
+* METHOD
+  CALL METHOD LO_CLIENT->REQUEST->SET_METHOD
+    EXPORTING
+      METHOD = LO_CLIENT->REQUEST->CO_REQUEST_METHOD_POST.
+
+* JSON TYPE
+  CALL METHOD LO_CLIENT->REQUEST->IF_HTTP_ENTITY~SET_CONTENT_TYPE
+    EXPORTING
+      CONTENT_TYPE = GC_CON_TYP.
+
+* HEADER FIELD
+  CALL METHOD LO_CLIENT->REQUEST->SET_HEADER_FIELD
+    EXPORTING
+      NAME  = GC_API_KEY
+      VALUE = GC_API_VAL.
+
+* BODY DATA
+  PERFORM SET_BODY CHANGING LV_JSON.
+
+  CALL METHOD LO_CLIENT->REQUEST->SET_CDATA
+    EXPORTING
+      DATA = LV_JSON.
+
+* CALL API(REQUEST)
+  LO_CLIENT->SEND(
+    EXCEPTIONS
+      HTTP_COMMUNICATION_FAILURE = 1
+      HTTP_INVALID_STATE         = 2
+      HTTP_PROCESSING_FAILED     = 3
+      HTTP_INVALID_TIMEOUT       = 4
+      OTHERS                     = 5 ).
+
+  IF SY-SUBRC <> 0.
+    GV_IF_STATUS = 'E'.
+    CASE SY-SUBRC.
+      WHEN 1. GV_IF_MSG = TEXT-M05.
+      WHEN 2. GV_IF_MSG = TEXT-M06.
+      WHEN 3. GV_IF_MSG = TEXT-M07.
+      WHEN 4. GV_IF_MSG = TEXT-M08.
+      WHEN 5. GV_IF_MSG = TEXT-M04.
+    ENDCASE.
+
+    PERFORM SAVE_LOG.
+    EXIT.
+  ENDIF.
+
+* RESPONSE
+  LO_CLIENT->RECEIVE(
+    EXCEPTIONS
+      HTTP_COMMUNICATION_FAILURE = 1
+      HTTP_INVALID_STATE         = 2
+      HTTP_PROCESSING_FAILED     = 3
+      OTHERS                     = 4 ).
+
+  IF SY-SUBRC <> 0.
+    GV_IF_STATUS = 'E'.
+    CASE SY-SUBRC.
+      WHEN 1. GV_IF_MSG = TEXT-M05.
+      WHEN 2. GV_IF_MSG = TEXT-M06.
+      WHEN 3. GV_IF_MSG = TEXT-M07.
+      WHEN 4. GV_IF_MSG = TEXT-M04.
+    ENDCASE.
+
+    PERFORM SAVE_LOG.
+    EXIT.
+  ENDIF.
+
+* RESPONSE DATA
+  LV_RESULT = LO_CLIENT->RESPONSE->GET_CDATA( ).
+
+  IF LV_RESULT IS NOT INITIAL.
+    PERFORM SET_RESPONSE USING LV_RESULT.
+  ENDIF.
+
+
+  CASE GS_RETURN-STATUS.
+    WHEN '200'.
+      MESSAGE S013. "Data has been sent
+      LOOP AT GT_DATA INTO DATA(LS_DATA).
+        GT_LIST-ICON = ICON_GREEN_LIGHT.
+        GT_LIST-SEND = 'X'.
+        GT_LIST-MESSAGE = TEXT-S03.
+        MODIFY GT_LIST TRANSPORTING ICON SEND MESSAGE WHERE VBELN2 = LS_DATA-VBELN_S.
+      ENDLOOP.
+      GV_IF_STATUS = 'S'.
+      PERFORM SAVE_LOG.
+    WHEN OTHERS.
+      MESSAGE S012 DISPLAY LIKE 'E'. "An error has occurred.
+      LOOP AT GT_DATA INTO DATA(LS_DATA2).
+        GT_LIST-ICON = ICON_RED_LIGHT.
+        GT_LIST-MESSAGE = TEXT-E04.
+        MODIFY GT_LIST TRANSPORTING ICON MESSAGE WHERE VBELN2 = LS_DATA2-VBELN_S.
+      ENDLOOP.
+      GV_IF_STATUS = 'E'.
+      GV_IF_MSG    = GS_RETURN-STATUS.
+      PERFORM SAVE_LOG.
+  ENDCASE.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form UPDATE_DATA
+*&---------------------------------------------------------------------*
+FORM UPDATE_DATA .
+
+  DATA: BEGIN OF LT_UPKEY OCCURS 0,
+          BSTKD   LIKE EKKO-EBELN,
+          ZZKOINV LIKE VBRK-ZZKOINV,
+        END OF LT_UPKEY,
+        LV_CHECK,
+        LV_ERR,
+        LV_NETWR LIKE VBRP-NETWR.
+
+  CLEAR: GT_ROWS[], GS_ROWS.
+  CALL METHOD GO_GRID->GET_SELECTED_ROWS
+    IMPORTING
+      ET_INDEX_ROWS = GT_ROWS.
+  IF GT_ROWS[] IS INITIAL.
+    MESSAGE S004 DISPLAY LIKE 'E'.
+    EXIT.
+  ENDIF.
+
+  PERFORM POPUP_MSG USING TEXT-P05
+                          TEXT-P06
+                          LV_CHECK.
+  CHECK LV_CHECK = '1'.
+
+  _CLEAR : LT_UPKEY.
+
+  LOOP AT GT_ROWS INTO GS_ROWS.
+    READ TABLE GT_LIST INDEX GS_ROWS-INDEX.
+    IF GT_LIST-ICON = ICON_GREEN_LIGHT AND GT_LIST-ZUPDATE IS INITIAL.
+      LT_UPKEY-BSTKD   = GT_LIST-BSTKD.
+      LT_UPKEY-ZZKOINV = GT_LIST-ZZKOINV.
+      COLLECT LT_UPKEY. CLEAR LT_UPKEY.
+    ELSE.
+      LV_ERR = 'X'.
+    ENDIF.
+  ENDLOOP.
+
+  IF LV_ERR = 'X'.
+    MESSAGE S000 WITH TEXT-E06 DISPLAY LIKE 'E'.
+    EXIT.
+  ENDIF.
+
+  SELECT CONNO,
+         BLNUM,
+         PONUM,
+         POITM,
+         MATNO,
+         KOINV,
+         QUANT
+  FROM ZMM1T4040
+  INTO TABLE @DATA(LT_4040)
+  FOR ALL ENTRIES IN @LT_UPKEY
+  WHERE PONUM = @LT_UPKEY-BSTKD
+    AND KOINV = @LT_UPKEY-ZZKOINV.
+
+  SORT LT_4040 BY KOINV PONUM MATNO.
+
+  LOOP AT LT_4040 INTO DATA(LS_4040).
+    READ TABLE GT_LIST WITH KEY ZZKOINV = LS_4040-KOINV
+                                BSTKD   = LS_4040-PONUM
+                                MATNR   = LS_4040-MATNO.
+    IF SY-SUBRC = 0.
+      CLEAR LV_NETWR.
+*NETPR -> FOBCN * QUANT
+      LV_NETWR = GT_LIST-KBETR2 * LS_4040-QUANT.
+      UPDATE ZMM1T4040 SET FOBCN   = GT_LIST-KBETR2
+                           NETPR   = LV_NETWR
+                       ASN_PDATE   = SY-DATUM
+
+                     WHERE PONUM   = GT_LIST-BSTKD
+                       AND KOINV   = GT_LIST-ZZKOINV
+                       AND MATNO   = GT_LIST-MATNR
+                       AND QUANT   = LS_4040-QUANT.
+      IF SY-SUBRC = 0.
+        UPDATE ZSDT0140 SET ZUPDATE  = 'X'
+                            AENAM    = SY-UNAME
+                            AEDAT    = SY-DATUM
+                            AEZET    = SY-UZEIT
+                      WHERE VBELN_VF = GT_LIST-VBELN_VF
+                        AND POSNR_VF = GT_LIST-POSNR_VF
+                        AND VBELN2   = GT_LIST-VBELN2
+                        AND POSNR2   = GT_LIST-POSNR2.
+
+        GT_LIST-ZUPDATE = 'X'.
+        GT_LIST-MESSAGE = TEXT-S04.
+        MODIFY GT_LIST TRANSPORTING ZUPDATE MESSAGE WHERE ZZKOINV = LS_4040-KOINV
+                                                     AND  BSTKD   = LS_4040-PONUM
+                                                     AND  MATNR   = LS_4040-MATNO.
+
+
+      ELSE.
+        GT_LIST-MESSAGE = TEXT-E07.
+        MODIFY GT_LIST TRANSPORTING MESSAGE WHERE ZZKOINV = LS_4040-KOINV
+                                              AND  BSTKD   = LS_4040-PONUM
+                                              AND  MATNR   = LS_4040-MATNO.
+
+      ENDIF.
+    ENDIF.
+  ENDLOOP.
+
+
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form SET_BODY
+*&---------------------------------------------------------------------*
+FORM SET_BODY   CHANGING PV_JSON.
+
+  TYPES: BEGIN OF LY_JSON,
+           API_DOC_ID TYPE STRING,
+           SENDER_ID  TYPE EKKO-BUKRS,
+           GT_DATA    TYPE /UI2/CL_JSON=>JSON,
+         END OF LY_JSON.
+
+  DATA: LS_JSON TYPE LY_JSON.
+
+  CLEAR LS_JSON.
+  LS_JSON-API_DOC_ID = GV_IF_TSP.
+  CONDENSE LS_JSON-API_DOC_ID.
+  READ TABLE GT_DATA INTO DATA(LS_DATA) INDEX 1.
+  LS_JSON-SENDER_ID = LS_DATA-BUKRS.
+
+  LS_JSON-GT_DATA =
+  /UI2/CL_JSON=>SERIALIZE(
+    EXPORTING
+      DATA        = GT_DATA
+      COMPRESS    = ABAP_TRUE
+      PRETTY_NAME = /UI2/CL_JSON=>PRETTY_MODE-NONE ).
+
+* SET DATA OF JSON TYPE
+  PV_JSON =
+  /UI2/CL_JSON=>SERIALIZE(
+    EXPORTING
+      DATA             = LS_JSON
+      COMPRESS         = ABAP_TRUE
+      ASSOC_ARRAYS     = ABAP_TRUE
+      ASSOC_ARRAYS_OPT = ABAP_TRUE
+      PRETTY_NAME      = /UI2/CL_JSON=>PRETTY_MODE-NONE ).
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form GET_TIMESTAMP
+*&---------------------------------------------------------------------*
+FORM GET_TIMESTAMP CHANGING PV_TSP.
+
+  GET TIME STAMP FIELD PV_TSP.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form SAVE_LOG
+*&---------------------------------------------------------------------*
+FORM SAVE_LOG .
+
+  DATA LT_0141 LIKE TABLE OF ZSDT0141 WITH HEADER LINE.
+
+  _CLEAR LT_0141.
+  LOOP AT GT_DATA INTO DATA(LS_DATA).
+    MOVE-CORRESPONDING LS_DATA TO LT_0141.
+    LT_0141-IF_TSP = GV_IF_TSP.
+    LT_0141-MSG = GV_IF_MSG.
+    LT_0141-TYPE = GV_IF_STATUS.
+    APPEND LT_0141. CLEAR LT_0141.
+  ENDLOOP.
+
+  MODIFY ZSDT0141 FROM TABLE LT_0141.
+
+  CHECK GV_IF_STATUS = 'S'.
+
+  LOOP AT GT_DATA INTO DATA(LS_DATA2).
+    UPDATE ZSDT0140 SET SEND  = 'X'
+                    AENAM    = SY-UNAME
+                    AEDAT    = SY-DATUM
+                    AEZET    = SY-UZEIT
+              WHERE VBELN2   = LS_DATA2-VBELN_S
+                AND POSNR2   = LS_DATA2-POSNR_S.
+  ENDLOOP.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form SET_RESPONSE
+*&---------------------------------------------------------------------*
+FORM SET_RESPONSE  USING PV_RESULT.
+
+  CLEAR GS_RETURN.
+
+  /UI2/CL_JSON=>DESERIALIZE(
+    EXPORTING
+      JSON = PV_RESULT
+      PRETTY_NAME = /UI2/CL_JSON=>PRETTY_MODE-NONE
+    CHANGING
+      DATA = GS_RETURN ).
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form CONTROL_SCREEN_OUTPUT
+*&---------------------------------------------------------------------*
+FORM CONTROL_SCREEN_OUTPUT .
+
+  LOOP AT SCREEN.
+    CASE 'X'.
+      WHEN P_CRE.
+        IF SCREEN-GROUP1 EQ 'Z02'.
+          SCREEN-INPUT   = '0'.
+          SCREEN-ACTIVE  = '0'.
+        ENDIF.
+      WHEN P_DISP.
+        IF SCREEN-GROUP1 EQ 'Z01'.
+          SCREEN-INPUT   = '0'.
+          SCREEN-ACTIVE  = '0'.
+        ENDIF.
+    ENDCASE.
+    MODIFY SCREEN.
+  ENDLOOP.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form CHECK_OBLIGATORY
+*&---------------------------------------------------------------------*
+FORM CHECK_OBLIGATORY .
+
+  IF P_CRE = 'X'.
+    IF P_MARGIN IS INITIAL.
+      MESSAGE S000 WITH TEXT-E08 DISPLAY LIKE 'E'.
+      LEAVE LIST-PROCESSING.
+    ENDIF.
+  ENDIF.
+
+ENDFORM.

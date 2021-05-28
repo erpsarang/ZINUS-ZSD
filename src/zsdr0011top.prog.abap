@@ -1,0 +1,124 @@
+*&---------------------------------------------------------------------*
+*& Include          ZSDR0011TOP
+*&---------------------------------------------------------------------*
+TABLES : SSCRFIELDS,  ZSDT0020.
+*&---------------------------------------------------------------------*
+*& INTERNAL TABLES
+*&---------------------------------------------------------------------*
+* Display
+DATA: BEGIN OF GT_LIST OCCURS 0,
+        ZKUNNR_IC     LIKE ZSDT0020-ZKUNNR_IC,
+        ZKUNNR_IC_TXT LIKE BUT000-NAME_ORG1,
+        KUNNR         LIKE KNA1-KUNNR,
+        KUNNR_TXT     LIKE KNA1-NAME1,
+        LIFNR         LIKE LFA1-LIFNR,
+        LIFNR_TXT     LIKE LFA1-NAME1,
+        ZPRODH_GROUP  LIKE ZSDT0100-ZPRODH_GROUP,
+        ZPRODH_TXT    LIKE ZSDT0100-VTEXT,
+        MATNR         LIKE MARA-MATNR,
+        MATNR_TXT     LIKE MAKT-MAKTX,
+        ZMARGIN       LIKE ZSDT0020-ZMARGIN,
+        ZSTART        LIKE ZSDT0020-ZSTART,
+        ZEXCEPT       LIKE ZSDT0020-ZEXCEPT,
+        ZCONFIRM      LIKE ZSDT0020-ZCONFIRM,
+        ZTYPE         LIKE DD07T-DDTEXT,
+        DEL,
+        UP,
+        FLAG,
+        ICON(4),
+        MESSAGE(100),
+        CELLSTYLE     TYPE LVC_T_STYL,
+        CELLCOLOR     TYPE LVC_T_SCOL,
+      END OF GT_LIST.
+
+DATA: BEGIN OF GT_UPLOAD OCCURS 0,
+        ZKUNNR_IC    LIKE ZSDT0020-ZKUNNR_IC,
+        KUNNR        LIKE KNA1-KUNNR,
+        LIFNR        LIKE LFA1-LIFNR,
+        ZPRODH_GROUP LIKE ZSDT0100-ZPRODH_GROUP,
+        MATNR        LIKE MARA-MATNR,
+        ZMARGIN(16),
+        ZEXCEPT      LIKE ZSDT0020-ZEXCEPT,
+      END OF GT_UPLOAD.
+
+DATA : BEGIN OF GT_0040 OCCURS 0,
+         ZKUNNR_IC     LIKE ZSDT0040-ZKUNNR_IC,
+         ZKUNNR_IC_TXT LIKE BUT000-NAME_ORG1,
+       END OF GT_0040.
+
+DATA : BEGIN OF GT_0100 OCCURS 0,
+         ZPRODH_GROUP LIKE ZSDT0100-ZPRODH_GROUP,
+         ZPRODH_TXT   LIKE ZSDT0100-VTEXT,
+       END OF GT_0100.
+
+DATA : BEGIN OF GT_KNA1 OCCURS 0,
+         KUNNR     LIKE KNA1-KUNNR,
+         KUNNR_TXT LIKE KNA1-NAME1,
+       END OF GT_KNA1.
+
+DATA : BEGIN OF GT_LFA1 OCCURS 0,
+         LIFNR     LIKE LFA1-LIFNR,
+         LIFNR_TXT LIKE LFA1-NAME1,
+       END OF GT_LFA1.
+
+DATA : GT_RETURNTAB TYPE STANDARD TABLE OF DDSHRETVAL,
+       GS_RETURNTAB LIKE LINE OF GT_RETURNTAB.
+
+DATA : GV_NOT_CONFIRM.
+DATA : GV_DATE TYPE SY-DATUM,
+       GV_DATE2 TYPE SY-DATUM.
+*&---------------------------------------------------------------------*
+*&  GLOBAL VARIABLE DECLARATION
+*&---------------------------------------------------------------------*
+DATA: OK_CODE TYPE SY-UCOMM.
+DATA : GV_SUCCESS(5),
+       GV_FAILURE(5),
+       GV_DUP,
+       GV_MARGIN LIKE ZSDT0020-ZMARGIN,
+       GV_SDATE      LIKE SY-DATUM,
+       GV_PATH       LIKE RLGRAP-FILENAME,
+       GV_ZTYPE.
+*&---------------------------------------------------------------------*
+*&  SELECTION-SCREEN.
+*&---------------------------------------------------------------------*
+
+SELECTION-SCREEN BEGIN OF BLOCK B0 WITH FRAME TITLE TEXT-T01.
+
+SELECTION-SCREEN BEGIN OF LINE.
+SELECTION-SCREEN POSITION 1.
+PARAMETERS: P_CRE RADIOBUTTON GROUP R01 DEFAULT 'X' USER-COMMAND U01.
+SELECTION-SCREEN COMMENT 2(15) TEXT-S01 FOR FIELD P_CRE.
+SELECTION-SCREEN POSITION 31.
+PARAMETERS: P_DIS RADIOBUTTON GROUP R01.
+SELECTION-SCREEN COMMENT 32(18) TEXT-S02 FOR FIELD P_DIS.
+SELECTION-SCREEN END OF LINE.
+
+SELECTION-SCREEN END OF BLOCK B0.
+
+SELECTION-SCREEN BEGIN OF BLOCK B1 WITH FRAME TITLE TEXT-T01.
+
+SELECTION-SCREEN BEGIN OF LINE.
+SELECTION-SCREEN COMMENT 1(20)  TEXT-S03 FOR FIELD P_DATE MODIF ID Z01.
+SELECTION-SCREEN POSITION  25.
+PARAMETERS    : P_DATE   LIKE SY-DATUM MODIF ID Z01.
+SELECTION-SCREEN END OF LINE.
+
+SELECT-OPTIONS : S_DATE FOR ZSDT0020-ZSTART MODIF ID Z02.
+
+SELECTION-SCREEN END OF BLOCK B1.
+
+SELECTION-SCREEN FUNCTION KEY 1.
+
+*********************************************************************
+*** DEFINE
+*********************************************************************
+DEFINE _CLEAR.
+  CLEAR : &1. CLEAR : &1[].
+END-OF-DEFINITION.
+DEFINE _RANGE.
+  &1-SIGN   = &2.
+  &1-OPTION = &3.
+  &1-LOW    = &4.
+  &1-HIGH   = &5.
+  APPEND &1. CLEAR &1.
+END-OF-DEFINITION.

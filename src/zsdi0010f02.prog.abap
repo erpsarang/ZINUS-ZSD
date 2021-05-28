@@ -1,0 +1,604 @@
+*&---------------------------------------------------------------------*
+*& Include          ZSDI0010F02
+*&---------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Form  SET_FRAME
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM SET_FRAME.
+
+  CREATE OBJECT GO_CUSTOM
+    EXPORTING
+      CONTAINER_NAME = 'GO_CON'.
+
+  CREATE OBJECT GO_GRID
+    EXPORTING
+      I_PARENT = GO_CUSTOM.
+
+ENDFORM. " SET_FRAME
+
+*&---------------------------------------------------------------------*
+*&      Form  SET_VARIANT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM SET_VARIANT.
+  CLEAR: GS_VARIANT.
+  GS_VARIANT-REPORT = SY-REPID.
+  GS_VARIANT-USERNAME = SY-UNAME.
+ENDFORM. " SET_VARIANT
+
+*&---------------------------------------------------------------------*
+*&      Form  SET_SORT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM SET_SORT.
+  CLEAR: GS_SORT, GT_SORT[].
+
+ENDFORM. " SET_SORT
+
+*&---------------------------------------------------------------------*
+*&      Form  SET_TOOLBAR_EXCLUDE
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM SET_TOOLBAR_EXCLUDE.
+  CLEAR: GT_EXCLUDE[].
+*  APPEND CL_GUI_ALV_GRID=>MC_FC_LOC_UNDO          TO GT_EXCLUDE. "Undo
+  APPEND CL_GUI_ALV_GRID=>MC_FC_HELP              TO GT_EXCLUDE. "Help
+  APPEND CL_GUI_ALV_GRID=>MC_FC_INFO              TO GT_EXCLUDE. "Info
+  APPEND CL_GUI_ALV_GRID=>MC_FC_GRAPH             TO GT_EXCLUDE. "그래픽
+*  APPEND CL_GUI_ALV_GRID=>MC_FC_LOC_COPY          TO GT_EXCLUDE. "Local: Copy
+  APPEND CL_GUI_ALV_GRID=>MC_FC_LOC_COPY_ROW      TO GT_EXCLUDE. "Local: Copy Row
+*  APPEND CL_GUI_ALV_GRID=>MC_FC_LOC_CUT           TO GT_EXCLUDE. "Local: Cut
+  APPEND CL_GUI_ALV_GRID=>MC_FC_LOC_INSERT_ROW    TO GT_EXCLUDE. "Local: InsertRow
+  APPEND CL_GUI_ALV_GRID=>MC_FC_LOC_MOVE_ROW      TO GT_EXCLUDE.
+*  IF P_DIS EQ 'X'.
+  APPEND CL_GUI_ALV_GRID=>MC_FC_LOC_DELETE_ROW    TO GT_EXCLUDE. "Local: DeleteRow
+  APPEND CL_GUI_ALV_GRID=>MC_FC_LOC_APPEND_ROW    TO GT_EXCLUDE. "Local: AppendRow
+*  ENDIF.
+*  APPEND CL_GUI_ALV_GRID=>MC_FC_LOC_PASTE         TO GT_EXCLUDE. "Local: Paste
+*  APPEND CL_GUI_ALV_GRID=>MC_FC_LOC_PASTE_NEW_ROW TO GT_EXCLUDE.
+  APPEND CL_GUI_ALV_GRID=>MC_FC_REFRESH           TO GT_EXCLUDE. "Refresh
+  APPEND CL_GUI_ALV_GRID=>MC_FC_WORD_PROCESSOR    TO GT_EXCLUDE.
+  APPEND CL_GUI_ALV_GRID=>MC_FC_HTML              TO GT_EXCLUDE.
+*  APPEND CL_GUI_ALV_GRID=>MC_FC_EXCL_ALL          TO GT_EXCLUDE. "Exclude
+ENDFORM. " SET_TOOLBAR_EXCLUDE
+
+*&---------------------------------------------------------------------*
+*&      Form  SET_LAYOUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM SET_LAYOUT.
+
+  CLEAR GS_LAYOUT.
+  GS_LAYOUT-SEL_MODE   = 'A'.
+  GS_LAYOUT-ZEBRA      = 'X'.
+  GS_LAYOUT-STYLEFNAME = 'CELLSTYLE'.
+  GS_LAYOUT-CTAB_FNAME = 'CELLCOLOR'.
+  GS_LAYOUT-CWIDTH_OPT = 'X'.
+
+*  PERFORM CELL_STYLE.
+
+ENDFORM. " SET_LAYOUT
+
+*&---------------------------------------------------------------------*
+*&      Form  SET_EVENT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM SET_EVENT USING PS_GRID TYPE REF TO LCL_ALV_GRID.
+
+  SET HANDLER
+    PS_GRID->HANDLE_DATA_CHANGED   "ALV 변경사항 관리
+    PS_GRID->HANDLE_DATA_CHANGED_FINISHED   "ALV 변경사항 관리
+    PS_GRID->HANDLE_HOTSPOT_CLICK  "HOTSPOT click event
+    PS_GRID->HANDLE_DOUBLE_CLICK   "DOUBLE click event
+    PS_GRID->HANDLE_TOP_OF_PAGE
+    PS_GRID->ON_F4
+    PS_GRID->HANDLE_TOOLBAR
+    PS_GRID->HANDLE_USER_COMMAND
+  FOR PS_GRID.
+
+  CALL METHOD PS_GRID->REGISTER_EDIT_EVENT
+    EXPORTING
+      I_EVENT_ID = CL_GUI_ALV_GRID=>MC_EVT_MODIFIED.    "변경시
+
+  CALL METHOD PS_GRID->REGISTER_EDIT_EVENT
+    EXPORTING
+      I_EVENT_ID = CL_GUI_ALV_GRID=>MC_EVT_ENTER.       "엔터
+
+ENDFORM. " SET_EVENT
+
+*&---------------------------------------------------------------------*
+*&      Form  SET_FIELDCAT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM SET_FIELDCAT.
+
+  CLEAR: GT_FCAT[], GS_FCAT.
+
+  GS_FCAT-FIELDNAME  = 'ICON'.
+  GS_FCAT-COLTEXT    = TEXT-F01. "'STATUS'.
+  GS_FCAT-JUST       = 'C'.
+  GS_FCAT-OUTPUTLEN  = '4'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME  = 'MESSAGE'.
+  GS_FCAT-COLTEXT    = TEXT-F02. "'Message'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'VBELN'.
+  GS_FCAT-COLTEXT   = TEXT-F03. "Sales order#
+  GS_FCAT-REF_FIELD = 'VBELN'.
+  GS_FCAT-REF_TABLE = 'VBAK'.
+  GS_FCAT-EMPHASIZE  = 'C100'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'KUNNR'.
+  GS_FCAT-COLTEXT   = TEXT-F04. "Sold-To party
+  GS_FCAT-REF_FIELD = 'KUNNR'.
+  GS_FCAT-REF_TABLE = 'VBAK'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'KUNNRT'.
+  GS_FCAT-COLTEXT   = TEXT-F05. "Sold-To party name
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'KUNNR_ADDRESS'.
+  GS_FCAT-COLTEXT   = TEXT-F06. "Sold-To address
+  GS_FCAT-OUTPUTLEN  = '50'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'KUNNR_LAND'.
+  GS_FCAT-COLTEXT   = TEXT-F07. "Sold-To COUNTRY
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'KUNWE'.
+  GS_FCAT-COLTEXT   = TEXT-F08. "Ship-To party
+  GS_FCAT-REF_FIELD = 'KUNNR'.
+  GS_FCAT-REF_TABLE = 'VBAK'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'KUNWET'.
+  GS_FCAT-COLTEXT   = TEXT-F09. "Ship-To party name
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'KUNWE_ADDRESS'.
+  GS_FCAT-COLTEXT   = TEXT-F10. "Ship-To address
+  GS_FCAT-OUTPUTLEN  = '50'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'KUNWE_LAND'.
+  GS_FCAT-COLTEXT   = TEXT-F11. "Ship-To COUNTRY
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'AUART'.
+  GS_FCAT-COLTEXT   = TEXT-F12. "Sales Document Type
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'AUART_TXT'.
+  GS_FCAT-COLTEXT   = TEXT-F13. "Sales Document Type NAME
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'AUDAT'.
+  GS_FCAT-COLTEXT   = TEXT-F14. "Document Date
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'VDATU'.
+  GS_FCAT-COLTEXT   = TEXT-F15. "Requested Delivery Date
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'WAERK'.
+  GS_FCAT-COLTEXT   = TEXT-F16. "SD document currency
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'VKORG'.
+  GS_FCAT-COLTEXT   = TEXT-F17. "Sales Organization
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'VKORG_TXT'.
+  GS_FCAT-COLTEXT   = TEXT-F18. "Sales Organization NAME
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'VTWEG'.
+  GS_FCAT-COLTEXT   = TEXT-F19. "Distribution Channel
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'VTWEG_TXT'.
+  GS_FCAT-COLTEXT   = TEXT-F20. "Distribution Channel NAME
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'SPART'.
+  GS_FCAT-COLTEXT   = TEXT-F21. "Division
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'SPART_TXT'.
+  GS_FCAT-COLTEXT   = TEXT-F22. "Division NAME
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'BSTKD'.
+  GS_FCAT-COLTEXT   = TEXT-F23. "Customer Purchase Order#
+  GS_FCAT-REF_FIELD = 'BSTKD'.
+  GS_FCAT-REF_TABLE = 'VBKD'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'BUKRS'.
+  GS_FCAT-COLTEXT   = TEXT-F63. "Corp code
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'BUKRS_TXT'.
+  GS_FCAT-COLTEXT   = TEXT-F64. "Corp code NAME
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'ZTERM'.
+  GS_FCAT-COLTEXT   = TEXT-F59. "payment term
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'ZTERM_TXT'.
+  GS_FCAT-COLTEXT   = TEXT-F60. "payment term NAME
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'INCO1'.
+  GS_FCAT-COLTEXT   = TEXT-F61. "incoterms
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'INCO2'.
+  GS_FCAT-COLTEXT   = TEXT-F62. "Incoterms Location
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'ZSHIP_LAND'.
+  GS_FCAT-COLTEXT   = TEXT-F87. "Ship-to + Country
+  GS_FCAT-NO_ZERO   = 'X'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'VBELN_I'.
+  GS_FCAT-COLTEXT   = TEXT-F24. "Sales order#
+  GS_FCAT-EMPHASIZE  = 'C100'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'POSNR'.
+  GS_FCAT-COLTEXT   = TEXT-F25. "Sales order item#
+  GS_FCAT-EMPHASIZE  = 'C100'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME  = 'ZDELE'.
+  GS_FCAT-COLTEXT    = TEXT-F26. "Sales order DELETION
+  GS_FCAT-CHECKBOX   = 'X'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME  = 'ZCOMPLETE'.
+  GS_FCAT-COLTEXT    = TEXT-F88. "
+  GS_FCAT-CHECKBOX   = 'X'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'MATNR'.
+  GS_FCAT-COLTEXT   = TEXT-F27. "Sales material
+  GS_FCAT-REF_FIELD = 'MATNR'.
+  GS_FCAT-REF_TABLE = 'MARA'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'MATNR_TXT'.
+  GS_FCAT-COLTEXT   = TEXT-F28. "Sales material name
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'CHARG'.
+  GS_FCAT-COLTEXT   = TEXT-F29. "Batch Number
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'ABGRU'.
+  GS_FCAT-COLTEXT   = TEXT-F30. "Reason for Rejection
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'KDMAT'.
+  GS_FCAT-COLTEXT   = TEXT-F31. "Material Number Used by Customer
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'WERKS'.
+  GS_FCAT-COLTEXT   = TEXT-F32. "Sales Plant
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'WERKS_TXT'.
+  GS_FCAT-COLTEXT   = TEXT-F33. "Sales Plant NAME
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'LGORT'.
+  GS_FCAT-COLTEXT   = TEXT-F34. "Sales Storage location
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'LGORT_TXT'.
+  GS_FCAT-COLTEXT   = TEXT-F35. "Sales Storage location NAME
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'KWMENG'.
+  GS_FCAT-COLTEXT   = TEXT-F36. "Sales Qty
+  GS_FCAT-QFIELDNAME = 'VRKME'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'VRKME'.
+  GS_FCAT-COLTEXT   = TEXT-F37. "Sales unit
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'NETPR'.
+  GS_FCAT-COLTEXT   = TEXT-F38. "Sales NET price
+  GS_FCAT-CFIELDNAME = 'WAERK_2'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'WAERK_2'.
+  GS_FCAT-COLTEXT   = TEXT-F39. "Sales curency
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'KPEIN'.
+  GS_FCAT-COLTEXT   = TEXT-F40. "Condition Pricing Unit
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'KMEIN'.
+  GS_FCAT-COLTEXT   = TEXT-F41. "Condition Unit
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'NETWR'.
+  GS_FCAT-COLTEXT   = TEXT-F42. "Net Value of the Order Item
+  GS_FCAT-CFIELDNAME = 'WAERK_2'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'ZZBIG'.
+  GS_FCAT-COLTEXT   = TEXT-F43. "Big Category
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'ZBIGTX'.
+  GS_FCAT-COLTEXT   = TEXT-F44. "Big Category Text
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'ZZMID'.
+  GS_FCAT-COLTEXT   = TEXT-F45. "Middle Category
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'ZMIDTX'.
+  GS_FCAT-COLTEXT   = TEXT-F46. "Middle Category Text
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'ZZSIN'.
+  GS_FCAT-COLTEXT   = TEXT-F47. "Single Category
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'ZSINGTX'.
+  GS_FCAT-COLTEXT   = TEXT-F48. "Single Category Text
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'BSTKD_2'.
+  GS_FCAT-COLTEXT   = TEXT-F49. "Customer Purchase Order#
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'POSEX'.
+  GS_FCAT-COLTEXT   = TEXT-F50. "Customer Purchase Order item#
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'NTGEW'.
+  GS_FCAT-COLTEXT   = TEXT-F51. "Net Weight
+  GS_FCAT-QFIELDNAME = 'GEWEI'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'BRGEW'.
+  GS_FCAT-COLTEXT   = TEXT-F53. "Gross Weight
+  GS_FCAT-QFIELDNAME = 'GEWEI'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'GEWEI'.
+  GS_FCAT-COLTEXT   = TEXT-F52. "Unit of Weight
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'VOLUM'.
+  GS_FCAT-COLTEXT   = TEXT-F54. "Volume
+  GS_FCAT-QFIELDNAME =  'VOLEH'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'VOLEH'.
+  GS_FCAT-COLTEXT   = TEXT-F55. "Volume unit
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME  = 'NTGEW_G'.
+  GS_FCAT-COLTEXT    = TEXT-F56. "Net Weight of the Item
+  GS_FCAT-QFIELDNAME =  'GEWEI'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME  = 'BRGEW_G'.
+  GS_FCAT-COLTEXT    = TEXT-F57. "Gross Weight of the Item
+  GS_FCAT-QFIELDNAME =  'GEWEI'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME  = 'VOLUM_G'.
+  GS_FCAT-COLTEXT    = TEXT-F58. "Volume of the item
+  GS_FCAT-QFIELDNAME =  'VOLEH'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'CWERK'.
+  GS_FCAT-COLTEXT   = TEXT-F65. "Customer PO plant
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'CWERK_TXT'.
+  GS_FCAT-COLTEXT   = TEXT-F66. "Customer PO plant NAME
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'CEIND'.
+  GS_FCAT-COLTEXT   = TEXT-F69. "Customer PO DELIVERY DATE
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'GROES'.
+  GS_FCAT-COLTEXT   = TEXT-F70. "SIZE
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'ZWFSKU'.
+  GS_FCAT-COLTEXT   = TEXT-F83. "Customer SKU
+  GS_FCAT-REF_FIELD = 'MATNR'.
+  GS_FCAT-REF_TABLE = 'MARA'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'ZASIN'.
+  GS_FCAT-COLTEXT   = TEXT-F84. "ASIN
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'ZWFPOH'.
+  GS_FCAT-COLTEXT   = TEXT-F85. "Customer PO (Ship To)
+  GS_FCAT-REF_FIELD = 'VERKF'.
+  GS_FCAT-REF_TABLE = 'EKKO'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'ZWFPOI'.
+  GS_FCAT-COLTEXT   = TEXT-F86. "Cust PO Line No
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'BSTKD_AZ'.
+  GS_FCAT-COLTEXT   = TEXT-F80. "Amazon PO
+  GS_FCAT-REF_FIELD = 'BSTKD'.
+  GS_FCAT-REF_TABLE = 'VBKD'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'POSEX_AZ'.
+  GS_FCAT-COLTEXT   = TEXT-F81. "Amazon PO Line
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'EAN11'.
+  GS_FCAT-COLTEXT   = TEXT-F73. "UPC No
+  GS_FCAT-REF_FIELD = 'EAN11'.
+  GS_FCAT-REF_TABLE = 'MARA'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'CCNGN'.
+  GS_FCAT-COLTEXT   = TEXT-F74. "HS CODE
+  GS_FCAT-REF_FIELD = 'STAWN'.
+  GS_FCAT-REF_TABLE = 'MARC'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+  GS_FCAT-FIELDNAME = 'CCNGNX'.
+  GS_FCAT-COLTEXT   = TEXT-F82. "HS CODE Name
+  GS_FCAT-REF_FIELD = 'STAWN'.
+  GS_FCAT-REF_TABLE = 'MARC'.
+  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+*  GS_FCAT-FIELDNAME = 'ZRSLT_SAP'.
+*  GS_FCAT-COLTEXT    = TEXT-F75. "IF Status
+*  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+*
+*  GS_FCAT-FIELDNAME = 'ZMSG_SAP'.
+*  GS_FCAT-COLTEXT    = TEXT-F76. "IF message
+*  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+*
+*  GS_FCAT-FIELDNAME = 'ZDATE_SAP'.
+*  GS_FCAT-COLTEXT    = TEXT-F77. "IF date(sap)
+*  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+*
+*  GS_FCAT-FIELDNAME = 'ZTIME_SAP'.
+*  GS_FCAT-COLTEXT    = TEXT-F78. "IF time(sap)
+*  APPEND GS_FCAT TO GT_FCAT. CLEAR: GS_FCAT.
+
+
+ENDFORM. " SET_FIELDCAT
+
+*&---------------------------------------------------------------------*
+*&      Form  SET_DISPLAY
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM SET_DISPLAY.
+  FIELD-SYMBOLS: <GT_TAB> TYPE TABLE.
+  UNASSIGN: <GT_TAB>.
+
+  ASSIGN: GT_LIST[] TO <GT_TAB>.
+
+  CALL METHOD GO_GRID->SET_READY_FOR_INPUT
+    EXPORTING
+      I_READY_FOR_INPUT = 1.
+
+  PERFORM SET_ON_F4.
+
+  CALL METHOD GO_GRID->SET_TABLE_FOR_FIRST_DISPLAY
+    EXPORTING
+      I_DEFAULT            = 'X'
+      IS_LAYOUT            = GS_LAYOUT
+      IS_VARIANT           = GS_VARIANT
+      IT_TOOLBAR_EXCLUDING = GT_EXCLUDE
+      I_SAVE               = 'A'
+    CHANGING
+      IT_OUTTAB            = <GT_TAB>[]
+      IT_FIELDCATALOG      = GT_FCAT
+      IT_SORT              = GT_SORT.
+
+ENDFORM. " SET_DISPLAY
+
+*&---------------------------------------------------------------------*
+*&      Form  REFRESH_LIST
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM REFRESH_LIST USING PS_GRID TYPE REF TO LCL_ALV_GRID.
+
+  CALL METHOD PS_GRID->SET_FRONTEND_LAYOUT
+    EXPORTING
+      IS_LAYOUT = GS_LAYOUT.
+
+  GS_STBL-ROW = 'X'.
+  GS_STBL-COL = 'X'.
+
+  CALL METHOD PS_GRID->REFRESH_TABLE_DISPLAY
+    EXPORTING
+      IS_STABLE = GS_STBL.
+
+ENDFORM. " REFRESH_LIST
+*&---------------------------------------------------------------------*
+*& Form CELL_STYLE
+*&---------------------------------------------------------------------*
+FORM CELL_STYLE.
+
+*  LOOP AT GT_LIST.
+*    PERFORM :  SET_STYLE USING 'MATNR'  ' '.
+*    CLEAR GT_LIST-CELLSTYLE[].
+*    INSERT LINES OF GT_STYL INTO TABLE GT_LIST-CELLSTYLE.
+*    MODIFY GT_LIST.  CLEAR GT_LIST.
+*  ENDLOOP.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form SET_STYLE
+*&---------------------------------------------------------------------*
+FORM SET_STYLE  USING P_NAME
+                      P_MODE.
+
+**해당 필드에 설정된 셀은 지우고 새로 넣어줘야한다.
+  CLEAR GS_STYL.
+  READ TABLE GT_STYL INTO GS_STYL WITH KEY FIELDNAME = P_NAME.
+  IF SY-SUBRC = 0.
+    DELETE GT_STYL INDEX SY-TABIX.
+  ENDIF.
+
+  CLEAR GS_STYL.
+  GS_STYL-FIELDNAME = P_NAME.
+  IF P_MODE EQ 'DISP'.
+    GS_STYL-STYLE = CL_GUI_ALV_GRID=>MC_STYLE_DISABLED.
+  ELSE.
+    GS_STYL-STYLE = CL_GUI_ALV_GRID=>MC_STYLE_ENABLED.
+  ENDIF.
+  INSERT GS_STYL INTO TABLE GT_STYL.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form SET_ON_F4
+*&---------------------------------------------------------------------*
+FORM SET_ON_F4 .
+
+  DATA: LS_F4 TYPE LVC_S_F4,
+        LT_F4 TYPE LVC_T_F4.
+
+*  CLEAR LS_F4.
+*  LS_F4-FIELDNAME  = 'KUNNR'.
+*  LS_F4-REGISTER   = 'X'.
+*  APPEND LS_F4 TO LT_F4.
+
+  CALL METHOD GO_GRID->REGISTER_F4_FOR_FIELDS
+    EXPORTING
+      IT_F4 = LT_F4.
+
+ENDFORM.

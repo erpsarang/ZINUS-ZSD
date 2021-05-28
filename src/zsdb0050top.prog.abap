@@ -1,0 +1,189 @@
+*&---------------------------------------------------------------------*
+*& Include          ZSDB0050TOP
+*&---------------------------------------------------------------------*
+
+TABLES : VBAK ,TVTW, KNA1, ZSDT0010, VBKD, SSCRFIELDS.
+
+*&---------------------------------------------------------------------*
+*& INTERNAL TABLES
+*&---------------------------------------------------------------------*
+
+* Display
+DATA: BEGIN OF GT_LIST OCCURS 0,
+        VBELN        LIKE VBAP-VBELN,        "Sales Order
+        POSNR        LIKE VBAP-POSNR,        "Item
+        VBELN_VL     LIKE ZSDS0030-VBELN_VL, "Delivery
+        MAT_DOC      LIKE ZSDS0030-MAT_DOC,  "Material Document
+        VBELN_VF     LIKE ZSDS0030-VBELN_VF, "Billing
+        VKORG        LIKE VBAK-VKORG,        "Sales ORG.
+        VTWEG        LIKE VBAK-VTWEG,        "Distribution Chan.
+        SPART        LIKE VBAK-SPART,        "Division
+        BSTKD        LIKE VBKD-BSTKD,        "Customer Ref.
+        KUNNR        LIKE KUAGV-KUNNR,       "Sold-to-Party
+        KUNNR_S      LIKE KUWEV-KUNNR,       "Ship-to-Party
+        VDATU        LIKE VBAK-VDATU,        "Req. Delivery date
+        PRSDT        LIKE VBKD-PRSDT,        "Price Date
+        KONDA        LIKE VBKD-KONDA,        "Price Group
+        MATNR        LIKE VBAP-MATNR,        "Material (SKU)
+        MATNR_TXT    LIKE MAKT-MAKTX,
+        MEINS        LIKE MARA-MEINS,        "UNIT
+        KWMENG       LIKE VBAP-KWMENG,       "Order QTY.
+        WERKS        LIKE T001L-WERKS,       "Plant
+        LGORT        LIKE VBAP-LGORT,        "Storage Location
+        BWTAR        LIKE T149D-BWTAR,       "valuation type
+        KBETR        LIKE KONP-KBETR,        "Sales Price
+        KBETR_CONV   LIKE KONP-KBETR,        "Sales Price Conversion
+        KBETR2       LIKE KONP-KBETR,        "Delivery fee
+        KBETR2_CONV  LIKE KONP-KBETR,        "Delivery fee Conversion
+        KBETR3       LIKE KONP-KBETR,        "Install fee
+        KBETR3_CONV  LIKE KONP-KBETR,        "Install fee Conversion
+        WAERS        LIKE TVKO-WAERS,
+        BNAME        LIKE VBAK-BNAME,        "Name of orderer
+        ICON(4),
+        MESSAGE(100),
+        DEL,
+        CELLSTYLE    TYPE LVC_T_STYL,
+        CELLCOLOR    TYPE LVC_T_SCOL,
+      END OF GT_LIST.
+
+DATA: BEGIN OF GT_UPLOAD OCCURS 0,
+        KUNNR      LIKE VBAK-KUNNR,  "Sold-to-Party
+        KUNNR_S    LIKE VBAK-KUNNR,  "Ship-to-Party
+        BSTKD      LIKE VBKD-BSTKD,  "Customer Ref.
+        VDATU      LIKE VBAK-VDATU,  "Req. Delivery date
+        PRSDT      LIKE VBKD-PRSDT,  "Price Date
+        KONDA      LIKE VBKD-KONDA,  "Price Group
+        MATNR      LIKE VBAP-MATNR,  "Material (SKU)
+        KWMENG(16),                  "Order QTY.
+        WERKS      LIKE T001L-WERKS, "Plant
+        LGORT      LIKE VBAP-LGORT,  "Storage Location
+        BWTAR      LIKE T149D-BWTAR, "valuation type
+        KBETR      LIKE KONP-KBETR,  "Sales Price
+        KBETR2     LIKE KONP-KBETR,  "Delivery fee
+        KBETR3     LIKE KONP-KBETR,  "Install fee
+        BNAME      LIKE VBAK-BNAME,  "Name of orderer
+      END OF GT_UPLOAD.
+
+DATA : BEGIN OF GT_BSTKD OCCURS 0,
+         BSTKD LIKE VBKD-BSTKD,
+         VBELN LIKE VBAP-VBELN,  "Sales Order
+       END OF GT_BSTKD.
+
+DATA : BEGIN OF GT_DUP OCCURS 0,
+         BSTKD LIKE VBKD-BSTKD,
+         VBELN LIKE VBKD-VBELN,
+       END OF GT_DUP.
+
+DATA : GT_DUP_KEY LIKE TABLE OF GT_DUP WITH HEADER LINE.
+
+DATA : BEGIN OF GT_MARA OCCURS 0,
+         MATNR LIKE MARA-MATNR,
+         MEINS LIKE MARA-MEINS,
+       END OF GT_MARA.
+
+DATA : GT_MARA_KEY LIKE TABLE OF GT_MARA WITH HEADER LINE .
+
+DATA : GT_SAVE LIKE TABLE OF ZSDT0010 WITH HEADER LINE.
+DATA : GT_TEMP LIKE TABLE OF ZSDT0010 WITH HEADER LINE.
+
+DATA : GT_VBFA LIKE TABLE OF VBFA WITH HEADER LINE.
+DATA : GT_VBFA_KEY LIKE TABLE OF VBFA WITH HEADER LINE.
+
+DATA : GV_WAERS LIKE TCURC-WAERS.
+
+DATA : GV_SUCCESS(5),
+       GV_FAILURE(5),
+       GV_ERR,
+       GV_MSG(200).
+
+*-- Sales Order
+DATA: GS_ORDER_HEADER_IN  LIKE BAPISDHD1,
+      GS_ORDER_HEADER_INX LIKE BAPISDHD1X.
+DATA: GT_ORDER_ITEMS_IN       LIKE TABLE OF BAPISDITM WITH HEADER LINE,
+      GT_ORDER_ITEMS_INX      LIKE TABLE OF BAPISDITMX WITH HEADER LINE,
+      GT_ORDER_SCHEDULES_IN   LIKE TABLE OF BAPISCHDL  WITH HEADER LINE,
+      GT_ORDER_SCHEDULES_INX  LIKE TABLE OF BAPISCHDLX WITH HEADER LINE,
+      GT_ORDER_PARTNERS       LIKE TABLE OF BAPIPARNR  WITH HEADER LINE,
+      GT_ORDER_CONDITIONS_IN  LIKE TABLE OF BAPICOND   WITH HEADER LINE,
+      GT_ORDER_CONDITIONS_INX LIKE TABLE OF BAPICONDX  WITH HEADER LINE,
+      GT_RETURN               LIKE TABLE OF BAPIRET2   WITH HEADER LINE,
+      GT_EXTENSION            LIKE TABLE OF BAPIPAREX  WITH HEADER LINE.
+DATA: GV_POSNR         TYPE POSNR_VA,
+      GV_SALESDOCUMENT LIKE BAPIVBELN-VBELN.
+
+*&---------------------------------------------------------------------*
+*&  GLOBAL VARIABLE DECLARATION
+*&---------------------------------------------------------------------*
+DATA: OK_CODE TYPE SY-UCOMM.
+RANGES : GR_KUNNR FOR BUT000-PARTNER.
+*-----------------------------------------------------------------------
+* BDC
+*-----------------------------------------------------------------------
+DATA : GT_BDCDATA LIKE BDCDATA OCCURS 0 WITH HEADER LINE,
+       GT_BDCMSG  TYPE TABLE OF BDCMSGCOLL WITH HEADER LINE.
+DATA : GS_CTU_PARAMS TYPE CTU_PARAMS.
+
+*&---------------------------------------------------------------------*
+*&  SELECTION-SCREEN.
+*&---------------------------------------------------------------------*
+
+SELECTION-SCREEN BEGIN OF BLOCK B1 WITH FRAME TITLE TEXT-B01.
+
+SELECTION-SCREEN BEGIN OF LINE.
+SELECTION-SCREEN POSITION 1.
+PARAMETERS: P_UPLOAD RADIOBUTTON GROUP R01 DEFAULT 'X'  USER-COMMAND UC01.
+SELECTION-SCREEN COMMENT 2(15) TEXT-S01 FOR FIELD P_UPLOAD.
+SELECTION-SCREEN POSITION 31.
+PARAMETERS: P_DISP RADIOBUTTON GROUP R01.
+SELECTION-SCREEN COMMENT 32(20) TEXT-S02 FOR FIELD P_DISP.
+SELECTION-SCREEN END OF LINE.
+
+SELECTION-SCREEN END OF BLOCK B1.
+
+SELECTION-SCREEN BEGIN OF BLOCK B2 WITH FRAME TITLE TEXT-B02.
+
+PARAMETERS : P_AUART LIKE VBAK-AUART MODIF ID M1 OBLIGATORY,
+             P_VKORG LIKE VBAK-VKORG OBLIGATORY,
+             P_VTWEG LIKE TVTW-VTWEG MODIF ID M1 OBLIGATORY,
+             P_SPART LIKE VBAK-SPART MODIF ID M1 OBLIGATORY,
+             P_FILE  LIKE RLGRAP-FILENAME DEFAULT 'C:\' MODIF ID M1 OBLIGATORY.
+
+SELECT-OPTIONS : S_VTWEG FOR TVTW-VTWEG MODIF ID M2 OBLIGATORY,
+                 S_SPART FOR VBAK-SPART MODIF ID M2 OBLIGATORY,
+                 S_KUNNR FOR KNA1-KUNNR MODIF ID M2 OBLIGATORY,
+                 S_DATE  FOR ZSDT0010-ERDAT MODIF ID M2 OBLIGATORY,
+                 S_BSTKD FOR VBKD-BSTKD MODIF ID M2.
+
+SELECTION-SCREEN END OF BLOCK B2.
+
+SELECTION-SCREEN BEGIN OF BLOCK B3 WITH FRAME TITLE TEXT-B03.
+
+SELECTION-SCREEN BEGIN OF LINE.
+SELECTION-SCREEN POSITION 1.
+PARAMETERS: P_ALL RADIOBUTTON GROUP R02 DEFAULT 'X' USER-COMMAND UC02 MODIF ID M2.
+SELECTION-SCREEN COMMENT 2(15) TEXT-S03 FOR FIELD P_ALL MODIF ID M2.
+SELECTION-SCREEN POSITION 31.
+PARAMETERS: P_COM RADIOBUTTON GROUP R02 MODIF ID M2.
+SELECTION-SCREEN COMMENT 32(15) TEXT-S04 FOR FIELD P_COM MODIF ID M2.
+SELECTION-SCREEN POSITION 61.
+PARAMETERS: P_NOT RADIOBUTTON GROUP R02 MODIF ID M2.
+SELECTION-SCREEN COMMENT 62(15) TEXT-S05 FOR FIELD P_NOT MODIF ID M2.
+SELECTION-SCREEN END OF LINE.
+
+SELECTION-SCREEN END OF BLOCK B3.
+SELECTION-SCREEN FUNCTION KEY 1.
+
+*********************************************************************
+*** DEFINE
+*********************************************************************
+DEFINE _CLEAR.
+  CLEAR : &1. CLEAR : &1[].
+END-OF-DEFINITION.
+
+DEFINE _RANGE.
+  &1-SIGN   = &2.
+  &1-OPTION = &3.
+  &1-LOW    = &4.
+  &1-HIGH   = &5.
+  APPEND &1. CLEAR &1.
+END-OF-DEFINITION.

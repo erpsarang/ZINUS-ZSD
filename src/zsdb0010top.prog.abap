@@ -1,0 +1,202 @@
+*&---------------------------------------------------------------------*
+*& Include          ZSDB0010TOP
+*&---------------------------------------------------------------------*
+TABLES : SSCRFIELDS, VBAK, VBKD.
+*&---------------------------------------------------------------------*
+*& INTERNAL TABLES
+*&---------------------------------------------------------------------*
+
+* Display
+DATA: BEGIN OF GT_LIST OCCURS 0,
+        BSTKD         LIKE VBKD-BSTKD,  "Customer Ref.
+        VBELN         LIKE VBAP-VBELN,  "Sales Order
+        POSNR         LIKE VBAP-POSNR,  "ITEM
+        VTWEG         LIKE VBAK-VTWEG,  "Distribution Chan.
+        SPART         LIKE VBAK-SPART,  "Division
+        KUNNR         LIKE KUAGV-KUNNR, "Sold-to-Party
+        KUNNR_TXT     LIKE BUT000-NAME_ORG1,
+        KUNNR2        LIKE KUWEV-KUNNR, "Ship-to-Party
+        KUNNR2_TXT    LIKE BUT000-NAME_ORG1,
+        KUNNR3        LIKE BUT000-PARTNER, "goods supplier
+        KUNNR3_TXT    LIKE BUT000-NAME_ORG1,
+        BSTDK         LIKE VBKD-BSTDK,  "Require date
+        PRSDT         LIKE VBKD-PRSDT,  "price date
+        ETD           LIKE SY-DATUM,    "ETD
+        ETA           LIKE SY-DATUM,    "ETA
+        MATNR         LIKE VBAP-MATNR,  "Material (SKU)
+        MATNR_TXT     LIKE MAKT-MAKTX,
+        KWMENG        LIKE VBAP-KWMENG,  "Order QTY.
+        KWMENG_SUM    LIKE VBAP-KWMENG,  "*PO/SKU/GS/가 같다면 ORDER 수량을 더해야함
+        MEINS         LIKE MARA-MEINS,
+        WERKS         LIKE T001L-WERKS, "Plant
+        WERKS_TXT     LIKE T001W-NAME1, "Plant name
+        LGORT         LIKE VBAP-LGORT,  "Storage Location
+        LGORT_TXT     LIKE T001L-LGOBE,  "Storage Location name
+        KBETR_CURRENT LIKE KONP-KBETR,  "Current Price
+        KBETR         LIKE KONP-KBETR,  "upload Price
+        KBETR_CONV    LIKE KONP-KBETR,  "upload Price Conversion
+        KBETR_SD      LIKE KONP-KBETR,  "Sales Price
+        POSEX         LIKE VBAP-POSEX,  "Customer Ref Item
+        ZASIN         LIKE ZSDT0120-ZASIN, "ZASIN
+        COUNTRY       LIKE ADRC-COUNTRY,
+        GOODSUP       LIKE LFA1-LIFNR,
+        KONWA         LIKE KONP-KONWA,
+        ICON(4),
+        MESSAGE       TYPE BAPI_MSG,
+        NEW_ITEM,
+        PRICE,
+        PARTNER,
+        QTY,
+        VKORG         LIKE VBAK-VKORG,
+        ZUPLOAD_DATE  LIKE SY-DATUM,
+        ZUPLOAD_TIME  LIKE SY-UZEIT,
+        KUNWE_OLD     LIKE ZSDT0150-KUNWE_OLD,
+        LIFNR_OLD     LIKE ZSDT0150-LIFNR_OLD,
+        KWMENG_OLD    LIKE ZSDT0150-KWMENG_OLD,
+        KBETR_OLD     LIKE ZSDT0150-KBETR_OLD,
+        APPROVE,
+        CELLSTYLE     TYPE LVC_T_STYL,
+        CELLCOLOR     TYPE LVC_T_SCOL,
+      END OF GT_LIST.
+
+DATA : BEGIN OF GT_SET OCCURS 0,
+         MATNR LIKE MARA-MATNR,
+         IDNRK LIKE MARA-MATNR,
+       END  OF GT_SET.
+
+
+DATA: BEGIN OF GT_UPLOAD OCCURS 0,
+        KUNNR      LIKE VBAK-KUNNR,    "Sold-to-Party
+        KUNNR2     LIKE VBAK-KUNNR,    "Ship-to-Party
+        KUNNR3     LIKE VBAK-KUNNR,    "goods supplier
+        BSTKD      LIKE VBKD-BSTKD,    "Customer Ref.
+        BSTDK      LIKE VBKD-BSTDK,    "Require date
+        PRSDT      LIKE VBKD-PRSDT,    "price date
+        ETD        LIKE SY-DATUM,      "ETD
+        ETA        LIKE SY-DATUM,      "ETA
+        MATNR      LIKE VBAP-MATNR,    "Material (SKU)
+        KWMENG(16),                    "Order QTY.
+        WERKS      LIKE T001L-WERKS,   "Plant
+        LGORT      LIKE VBAP-LGORT,    "Storage Location
+        KBETR      LIKE KONP-KBETR,    "Sales Price
+        POSEX      LIKE VBAP-POSEX,    "Customer Ref Item
+        ZASIN      LIKE ZSDT0120-ZASIN, "ZASIN
+      END OF GT_UPLOAD.
+
+DATA : BEGIN OF GT_DUP OCCURS 0,
+         BSTKD    LIKE VBKD-BSTKD,
+         VBELN    LIKE VBAP-VBELN,
+         POSNR    LIKE VBAP-POSNR,
+         MATNR    LIKE VBAP-MATNR,
+         KWMENG   LIKE VBAP-KWMENG,
+         NETPR    LIKE VBAP-NETPR,
+         KUNWE_H  LIKE VBPA-KUNNR,
+         LIFNR_H  LIKE VBPA-LIFNR,
+         KUNWE_I  LIKE VBPA-KUNNR,
+         LIFNR_I  LIKE VBPA-LIFNR,
+         VBELN_VL LIKE LIPS-VBELN,
+         POSNR_VL LIKE LIPS-POSNR,
+         IF_VBELN LIKE VBAP-VBELN,
+         EBELN    LIKE EKPO-EBELN,
+         EBELP    LIKE EKPO-EBELP,
+       END OF GT_DUP.
+
+DATA : BEGIN OF GT_BSTKD OCCURS 0,
+         BSTKD LIKE VBKD-BSTKD,
+       END OF GT_BSTKD.
+
+DATA : GT_0120 LIKE TABLE OF ZSDT0120 WITH HEADER LINE,
+       GT_0060 LIKE TABLE OF ZSDT0060 WITH HEADER LINE,
+       GT_0150 LIKE TABLE OF ZSDT0150 WITH HEADER LINE.
+
+DATA : GV_SUCCESS(5),
+       GV_FAILURE(5),
+       GV_TIME       LIKE SY-UZEIT,
+       GV_DATE       LIKE SY-DATUM.
+
+*-- Sales Order
+DATA: GS_ORDER_HEADER_IN  LIKE BAPISDHD1,
+      GS_ORDER_HEADER_INX LIKE BAPISDHD1X.
+DATA: GT_ORDER_ITEMS_IN       LIKE TABLE OF BAPISDITM WITH HEADER LINE,
+      GT_ORDER_ITEMS_INX      LIKE TABLE OF BAPISDITMX WITH HEADER LINE,
+      GT_ORDER_SCHEDULES_IN   LIKE TABLE OF BAPISCHDL  WITH HEADER LINE,
+      GT_ORDER_SCHEDULES_INX  LIKE TABLE OF BAPISCHDLX WITH HEADER LINE,
+      GT_ORDER_PARTNERS       LIKE TABLE OF BAPIPARNR  WITH HEADER LINE,
+      GT_CHANGE_PARTNERS      LIKE TABLE OF BAPIPARNRC WITH HEADER LINE,
+      GT_ORDER_CONDITIONS_IN  LIKE TABLE OF BAPICOND   WITH HEADER LINE,
+      GT_ORDER_CONDITIONS_INX LIKE TABLE OF BAPICONDX  WITH HEADER LINE,
+      GT_RETURN               LIKE TABLE OF BAPIRET2   WITH HEADER LINE,
+      GT_EXTENSION            LIKE TABLE OF BAPIPAREX  WITH HEADER LINE,
+      GT_TEXT                 TYPE STANDARD TABLE OF BAPISDTEXT WITH HEADER LINE.
+DATA: GV_SALESDOCUMENT LIKE BAPIVBELN-VBELN,
+      GS_HEADER_INX    LIKE BAPISDH1X.
+
+DATA : GV_WAERS LIKE TCURC-WAERS.
+
+*&---------------------------------------------------------------------*
+*&  GLOBAL VARIABLE DECLARATION
+*&---------------------------------------------------------------------*
+DATA: OK_CODE TYPE SY-UCOMM.
+RANGES : GR_KUNNR FOR BUT000-PARTNER.
+
+*&---------------------------------------------------------------------*
+*&  SELECTION-SCREEN.
+*&---------------------------------------------------------------------*
+
+SELECTION-SCREEN BEGIN OF BLOCK B0 WITH FRAME TITLE TEXT-T00.
+
+SELECTION-SCREEN BEGIN OF LINE.
+SELECTION-SCREEN POSITION 1.
+PARAMETERS: P_UPLOAD RADIOBUTTON GROUP R01 DEFAULT 'X'  USER-COMMAND UC01.
+SELECTION-SCREEN COMMENT 2(15) TEXT-S01 FOR FIELD P_UPLOAD.
+SELECTION-SCREEN POSITION 31.
+PARAMETERS: P_DISP RADIOBUTTON GROUP R01.
+SELECTION-SCREEN COMMENT 32(20) TEXT-S02 FOR FIELD P_DISP.
+SELECTION-SCREEN END OF LINE.
+
+SELECTION-SCREEN END OF BLOCK B0.
+
+
+SELECTION-SCREEN BEGIN OF BLOCK B1 WITH FRAME TITLE TEXT-T01.
+
+PARAMETERS : P_AUART LIKE VBAK-AUART  MEMORY ID AAT MODIF ID M1,
+             P_VKORG LIKE VBAK-VKORG  MEMORY ID VKO MODIF ID M1,
+             P_VTWEG LIKE TVTWT-VTWEG MEMORY ID VTW MODIF ID M1,
+             P_SPART LIKE TSPAT-SPART MODIF ID M1.
+
+SELECT-OPTIONS : S_VKORG FOR VBAK-AUART NO INTERVALS NO-EXTENSION MODIF ID M2,
+                 S_VTWEG FOR VBAK-VTWEG MODIF ID M2,
+                 S_SPART FOR VBAK-SPART NO INTERVALS NO-EXTENSION MODIF ID M2,
+                 S_DATE  FOR VBAK-ERDAT MODIF ID M2,
+                 S_KUNNR FOR VBAK-KUNNR MODIF ID M2,
+                 S_VBELN FOR VBAK-VBELN MODIF ID M2,
+                 S_BSTKD FOR VBKD-BSTKD MODIF ID M2.
+
+PARAMETERS : P_FILE  LIKE RLGRAP-FILENAME DEFAULT 'C:\' MODIF ID M1.
+
+SELECTION-SCREEN SKIP 1.
+
+PARAMETERS P_OPENPO AS CHECKBOX MODIF ID M1.
+
+SELECTION-SCREEN END OF BLOCK B1.
+SELECTION-SCREEN FUNCTION KEY 1.
+*********************************************************************
+*** DEFINE
+*********************************************************************
+DEFINE _CLEAR.
+  CLEAR : &1. CLEAR : &1[].
+END-OF-DEFINITION.
+
+DEFINE _RANGE.
+  &1-SIGN   = &2.
+  &1-OPTION = &3.
+  &1-LOW    = &4.
+  &1-HIGH   = &5.
+  COLLECT &1. CLEAR &1.
+END-OF-DEFINITION.
+DEFINE _SET_ALV_COLOR.
+  GS_COLOR-COLOR-COL = &1.
+  GS_COLOR-COLOR-INT = &2.
+  GS_COLOR-COLOR-INV = &3.
+  INSERT GS_COLOR INTO TABLE GT_COLOR.
+END-OF-DEFINITION.

@@ -1,0 +1,66 @@
+FUNCTION ZSD_FIND_FINAL_PRICE.
+*"----------------------------------------------------------------------
+*"*"Local Interface:
+*"  TABLES
+*"      T_DATA STRUCTURE  ZSDS0090 OPTIONAL
+*"      T_RETURN STRUCTURE  ZSDS0091 OPTIONAL
+*"----------------------------------------------------------------------
+
+  RANGES : LR_BSTKD FOR VBKD-BSTKD.
+  RANGES : LR_MATNR FOR VBAP-MATNR.
+
+  CLEAR : LR_BSTKD, LR_BSTKD[],
+          LR_MATNR, LR_MATNR[].
+
+  LOOP AT T_DATA.
+    IF T_DATA-BSTKD_END IS INITIAL.
+      _RANGE LR_BSTKD 'I' 'EQ' T_DATA-BSTKD ''.
+    ELSE.
+      _RANGE LR_BSTKD 'I' 'EQ' T_DATA-BSTKD_END ''.
+    ENDIF.
+
+    IF T_DATA-MATNR IS NOT INITIAL.
+      _RANGE LR_MATNR 'I' 'EQ' T_DATA-MATNR ''.
+    ENDIF.
+  ENDLOOP.
+
+  DELETE LR_BSTKD WHERE LOW IS INITIAL.
+
+  SELECT A~VBELN,
+         A~POSNR,
+         A~MATNR,
+         A~NETPR,
+         A~WAERK,
+         A~KPEIN,
+         A~KMEIN,
+         B~BSTKD
+   INTO TABLE @DATA(LT_DATA)
+   FROM VBAP AS A INNER JOIN VBKD AS B ON A~VBELN = B~VBELN
+   WHERE A~MATNR IN @LR_MATNR
+     AND B~BSTKD IN @LR_BSTKD.
+
+  SORT LT_DATA BY BSTKD MATNR.
+
+  CLEAR : T_RETURN, T_RETURN[].
+
+  LOOP AT T_DATA.
+    MOVE-CORRESPONDING T_DATA TO T_RETURN.
+
+    READ TABLE LT_DATA INTO DATA(LS_DATA) WITH KEY BSTKD = T_DATA-BSTKD
+                                                   MATNR = T_DATA-MATNR BINARY SEARCH.
+    IF SY-SUBRC = 0.
+      T_RETURN-KBETR = LS_DATA-NETPR.
+      T_RETURN-KONWA = LS_DATA-WAERK.
+      T_RETURN-KPEIN = LS_DATA-KPEIN.
+      T_RETURN-KMEIN = LS_DATA-KMEIN.
+      T_RETURN-MESSAGE = 'Success'.
+    ELSE.
+      T_RETURN-MESSAGE = 'There is no sales price'.
+    ENDIF.
+
+    APPEND T_RETURN. CLEAR T_RETURN.
+  ENDLOOP.
+
+
+
+ENDFUNCTION.

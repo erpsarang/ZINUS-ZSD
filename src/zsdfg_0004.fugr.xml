@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_FUGR" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <AREAT>[SD] BP Sales Area Expansion</AREAT>
+   <INCLUDES>
+    <SOBJ_NAME>LZSDFG_0004F01</SOBJ_NAME>
+    <SOBJ_NAME>LZSDFG_0004TOP</SOBJ_NAME>
+    <SOBJ_NAME>SAPLZSDFG_0004</SOBJ_NAME>
+   </INCLUDES>
+   <FUNCTIONS>
+    <item>
+     <FUNCNAME>ZSD_MODIFY_BUSINESS_PARTNER</FUNCNAME>
+     <SHORT_TEXT>Business Partner Create / Change</SHORT_TEXT>
+     <IMPORT>
+      <RSIMP>
+       <PARAMETER>IS_DATA</PARAMETER>
+       <REFERENCE>X</REFERENCE>
+       <TYP>ZFIS2010</TYP>
+      </RSIMP>
+     </IMPORT>
+     <EXPORT>
+      <RSEXP>
+       <PARAMETER>EV_BPARTNER</PARAMETER>
+       <REFERENCE>X</REFERENCE>
+       <TYP>BU_PARTNER</TYP>
+      </RSEXP>
+      <RSEXP>
+       <PARAMETER>EV_TYPE</PARAMETER>
+       <REFERENCE>X</REFERENCE>
+       <TYP>BAPI_MTYPE</TYP>
+      </RSEXP>
+      <RSEXP>
+       <PARAMETER>EV_MESSAGE</PARAMETER>
+       <REFERENCE>X</REFERENCE>
+       <TYP>BAPI_MSG</TYP>
+      </RSEXP>
+     </EXPORT>
+     <TABLES>
+      <RSTBL>
+       <PARAMETER>IT_BANK</PARAMETER>
+       <DBSTRUCT>ZFI1S0021</DBSTRUCT>
+       <OPTIONAL>X</OPTIONAL>
+      </RSTBL>
+      <RSTBL>
+       <PARAMETER>IT_PART</PARAMETER>
+       <DBSTRUCT>ZFI1S0022</DBSTRUCT>
+       <OPTIONAL>X</OPTIONAL>
+      </RSTBL>
+      <RSTBL>
+       <PARAMETER>IT_INTER</PARAMETER>
+       <DBSTRUCT>ZMDS0061</DBSTRUCT>
+       <OPTIONAL>X</OPTIONAL>
+      </RSTBL>
+     </TABLES>
+     <DOCUMENTATION>
+      <RSFDO>
+       <PARAMETER>IS_DATA</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Business Partner Structure</STEXT>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>EV_BPARTNER</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Business Partner Number</STEXT>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>EV_TYPE</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Message type: S Success, E Error, W Warning, I Info, A Abort</STEXT>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>EV_MESSAGE</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Message Text</STEXT>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>IT_BANK</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>BP Banks Structure</STEXT>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>IT_PART</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Business Partner Customer partner Structure</STEXT>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>IT_INTER</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>[MD] Business Partner - International</STEXT>
+      </RSFDO>
+     </DOCUMENTATION>
+    </item>
+   </FUNCTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_FUGR" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <AREAT>[SD] Customer Material Info. record</AREAT>
+   <INCLUDES>
+    <SOBJ_NAME>LZSDFG_0003F01</SOBJ_NAME>
+    <SOBJ_NAME>LZSDFG_0003TOP</SOBJ_NAME>
+    <SOBJ_NAME>SAPLZSDFG_0003</SOBJ_NAME>
+   </INCLUDES>
+   <FUNCTIONS>
+    <item>
+     <FUNCNAME>ZSD_VENDOR_PRICE_BY_MATERIAL</FUNCNAME>
+     <SHORT_TEXT>[KRSD] Vendor data by material</SHORT_TEXT>
+     <IMPORT>
+      <RSIMP>
+       <PARAMETER>IV_WERKS</PARAMETER>
+       <DEFAULT>&apos;1001&apos;</DEFAULT>
+       <REFERENCE>X</REFERENCE>
+       <TYP>WERKS_D</TYP>
+      </RSIMP>
+      <RSIMP>
+       <PARAMETER>IV_EKORG</PARAMETER>
+       <REFERENCE>X</REFERENCE>
+       <TYP>EKORG</TYP>
+      </RSIMP>
+      <RSIMP>
+       <PARAMETER>IV_KSCHL</PARAMETER>
+       <DEFAULT>&apos;PB00&apos;</DEFAULT>
+       <REFERENCE>X</REFERENCE>
+       <TYP>KSCHL</TYP>
+      </RSIMP>
+      <RSIMP>
+       <PARAMETER>IV_MATNR</PARAMETER>
+       <REFERENCE>X</REFERENCE>
+       <TYP>MATNR</TYP>
+      </RSIMP>
+      <RSIMP>
+       <PARAMETER>IV_LIFNR</PARAMETER>
+       <OPTIONAL>X</OPTIONAL>
+       <TYP>LIFNR</TYP>
+      </RSIMP>
+      <RSIMP>
+       <PARAMETER>IV_VALIDDATE</PARAMETER>
+       <DEFAULT>SY-DATUM</DEFAULT>
+       <REFERENCE>X</REFERENCE>
+       <TYP>KODATAB</TYP>
+      </RSIMP>
+     </IMPORT>
+     <EXPORT>
+      <RSEXP>
+       <PARAMETER>EX_RETURN</PARAMETER>
+       <REFERENCE>X</REFERENCE>
+      </RSEXP>
+     </EXPORT>
+     <TABLES>
+      <RSTBL>
+       <PARAMETER>ET_DATA</PARAMETER>
+       <DBSTRUCT>ZSDS0050</DBSTRUCT>
+       <OPTIONAL>X</OPTIONAL>
+      </RSTBL>
+     </TABLES>
+     <DOCUMENTATION>
+      <RSFDO>
+       <PARAMETER>IV_WERKS</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Plant</STEXT>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>IV_EKORG</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Purchasing organization</STEXT>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>IV_KSCHL</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Condition type</STEXT>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>IV_MATNR</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Material Number</STEXT>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>IV_LIFNR</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Account Number of Vendor or Creditor</STEXT>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>IV_VALIDDATE</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Validity Start date</STEXT>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>EX_RETURN</PARAMETER>
+       <KIND>P</KIND>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>ET_DATA</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>[KRSD] Unit price info. by material / Vendor</STEXT>
+      </RSFDO>
+     </DOCUMENTATION>
+    </item>
+   </FUNCTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

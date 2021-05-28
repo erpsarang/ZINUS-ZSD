@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_FUGR" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <AREAT>[SD] QT Change checking confirm pagged</AREAT>
+   <INCLUDES>
+    <SOBJ_NAME>LZSDFG_0006TOP</SOBJ_NAME>
+    <SOBJ_NAME>SAPLZSDFG_0006</SOBJ_NAME>
+   </INCLUDES>
+   <FUNCTIONS>
+    <item>
+     <FUNCNAME>ZSD_QT_CHANGE_CHECK</FUNCNAME>
+     <SHORT_TEXT>[SD] QT_CHANGE_CHECK</SHORT_TEXT>
+     <IMPORT>
+      <RSIMP>
+       <PARAMETER>I_VBELN</PARAMETER>
+       <TYP>VBELN_VA</TYP>
+      </RSIMP>
+     </IMPORT>
+     <TABLES>
+      <RSTBL>
+       <PARAMETER>T_RESULT</PARAMETER>
+       <DBSTRUCT>ZSDS0100</DBSTRUCT>
+      </RSTBL>
+     </TABLES>
+     <DOCUMENTATION>
+      <RSFDO>
+       <PARAMETER>I_VBELN</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Sales Document</STEXT>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>T_RESULT</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>[SD] Checking confirm pegged plan order</STEXT>
+      </RSFDO>
+     </DOCUMENTATION>
+    </item>
+   </FUNCTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

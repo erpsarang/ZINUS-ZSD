@@ -1,0 +1,145 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_MSAG" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <T100A>
+    <ARBGB>ZSD</ARBGB>
+    <MASTERLANG>E</MASTERLANG>
+   </T100A>
+   <T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZSD</ARBGB>
+     <MSGNR>000</MSGNR>
+     <TEXT>&amp; &amp; &amp; &amp;</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZSD</ARBGB>
+     <MSGNR>001</MSGNR>
+     <TEXT>There is no data.</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZSD</ARBGB>
+     <MSGNR>002</MSGNR>
+     <TEXT>File path is too long.</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZSD</ARBGB>
+     <MSGNR>003</MSGNR>
+     <TEXT>File was not selected.</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZSD</ARBGB>
+     <MSGNR>004</MSGNR>
+     <TEXT>Select one or more lines</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZSD</ARBGB>
+     <MSGNR>005</MSGNR>
+     <TEXT>The error cannot be processed</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZSD</ARBGB>
+     <MSGNR>006</MSGNR>
+     <TEXT>Fill out distribution Channel</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZSD</ARBGB>
+     <MSGNR>007</MSGNR>
+     <TEXT>Fill out sold-to party</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZSD</ARBGB>
+     <MSGNR>008</MSGNR>
+     <TEXT>Fill out Date</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZSD</ARBGB>
+     <MSGNR>009</MSGNR>
+     <TEXT>Contains data that cannot be canceled</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZSD</ARBGB>
+     <MSGNR>010</MSGNR>
+     <TEXT>Data is saved!</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZSD</ARBGB>
+     <MSGNR>011</MSGNR>
+     <TEXT>Data is not saved!</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZSD</ARBGB>
+     <MSGNR>012</MSGNR>
+     <TEXT>An error has occurred.</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZSD</ARBGB>
+     <MSGNR>013</MSGNR>
+     <TEXT>Data has been sent.</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZSD</ARBGB>
+     <MSGNR>014</MSGNR>
+     <TEXT>Displayed data : &amp;</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZSD</ARBGB>
+     <MSGNR>015</MSGNR>
+     <TEXT>Margin data does not exist.</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZSD</ARBGB>
+     <MSGNR>016</MSGNR>
+     <TEXT>There is no data to create document.</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZSD</ARBGB>
+     <MSGNR>017</MSGNR>
+     <TEXT>Not exists a target for work. Please check the selected data.</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZSD</ARBGB>
+     <MSGNR>018</MSGNR>
+     <TEXT>&amp; is required field</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZSD</ARBGB>
+     <MSGNR>019</MSGNR>
+     <TEXT>There is no data to create</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZSD</ARBGB>
+     <MSGNR>020</MSGNR>
+     <TEXT>Plnd Order End Date(&amp;)and Mat.avail.date(&amp;)are different</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZSD</ARBGB>
+     <MSGNR>021</MSGNR>
+     <TEXT>There is no data to chage price.</TEXT>
+    </T100>
+   </T100>
+  </asx:values>
+ </asx:abap>
+</abapGit>

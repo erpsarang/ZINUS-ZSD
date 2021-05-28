@@ -1,0 +1,1626 @@
+*&---------------------------------------------------------------------*
+*& Include          ZSDR0011F01
+*&---------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Form  SET_INIT
+*&---------------------------------------------------------------------*
+FORM SET_INIT .
+  CLEAR : GV_DATE, GV_ZTYPE, GV_DATE2.
+  GET PARAMETER ID 'Z01' FIELD GV_DATE.
+  GET PARAMETER ID 'Z02' FIELD GV_ZTYPE.
+
+  IF GV_ZTYPE = 'P' OR GV_ZTYPE = 'S'.
+    GET PARAMETER ID 'Z03' FIELD GV_DATE2.
+    _RANGE S_DATE 'I' 'EQ' GV_DATE GV_DATE2.
+  ELSE.
+    P_DATE  = GV_DATE.
+  ENDIF.
+
+ENDFORM. " SET_INIT
+*&---------------------------------------------------------------------*
+*&      Form  HANDLE_DATA_CHANGED
+*&---------------------------------------------------------------------*
+FORM HANDLE_DATA_CHANGED USING PR_DATA_CHANGED TYPE REF TO CL_ALV_CHANGED_DATA_PROTOCOL.
+
+  DATA : LS_MOD_CELLS     TYPE LVC_S_MODI,
+         LV_GETVALUE(30),
+         LV_MODIVALUE(30).
+
+  CLEAR: LS_MOD_CELLS.
+
+  LOOP AT PR_DATA_CHANGED->MT_MOD_CELLS INTO LS_MOD_CELLS.
+    CASE LS_MOD_CELLS-FIELDNAME.
+      WHEN 'ZKUNNR_IC'.
+        CLEAR LV_GETVALUE.
+        PERFORM GET_CELL USING PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'ZKUNNR_IC' LV_GETVALUE.
+
+        IF  LV_GETVALUE IS INITIAL.
+          PERFORM MODI_CELL USING PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'ZKUNNR_IC_TXT' SPACE.
+          EXIT.
+        ENDIF.
+
+        CLEAR : GT_0040, LV_MODIVALUE.
+        READ TABLE GT_0040 WITH KEY ZKUNNR_IC = LV_GETVALUE BINARY SEARCH.
+        IF SY-SUBRC = 0.
+          LV_MODIVALUE = GT_0040-ZKUNNR_IC_TXT.
+          PERFORM MODI_CELL USING PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'ZKUNNR_IC_TXT' LV_MODIVALUE.
+        ELSE.
+          PERFORM MODI_CELL USING : PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'ZKUNNR_IC' SPACE,
+                                    PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'ZKUNNR_IC_TXT' SPACE.
+          MESSAGE S000 WITH TEXT-E04 '(Intercompany)' DISPLAY LIKE 'E'.
+          EXIT.
+        ENDIF.
+
+        CLEAR : GT_LIST, GV_DUP.
+        READ TABLE GT_LIST INDEX LS_MOD_CELLS-ROW_ID.
+        PERFORM CHECK_DUPULICATE USING PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID.
+        IF GV_DUP IS NOT INITIAL.
+          PERFORM MODI_CELL USING : PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'ZKUNNR_IC' SPACE,
+                                    PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'ZKUNNR_IC_TXT' SPACE.
+          MESSAGE S000 WITH TEXT-E02 DISPLAY LIKE 'E'.
+          EXIT.
+        ENDIF.
+
+        PERFORM MODI_CELL USING : PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'MESSAGE' SPACE.
+        PERFORM MODI_CELL USING : PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'ICON' SPACE.
+
+      WHEN 'KUNNR'.
+        CLEAR LV_GETVALUE.
+        PERFORM GET_CELL USING PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'KUNNR' LV_GETVALUE.
+
+        IF  LV_GETVALUE IS INITIAL.
+          PERFORM MODI_CELL USING PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'KUNNR_TXT' SPACE.
+          EXIT.
+        ENDIF.
+
+        CLEAR : GT_KNA1, LV_MODIVALUE.
+        READ TABLE GT_KNA1 WITH KEY KUNNR = LV_GETVALUE.
+        IF SY-SUBRC = 0.
+          LV_MODIVALUE = GT_KNA1-KUNNR_TXT.
+          PERFORM MODI_CELL USING PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'KUNNR_TXT' LV_MODIVALUE.
+        ELSE.
+          PERFORM MODI_CELL USING : PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'KUNNR' SPACE,
+                                    PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'KUNNR_TXT' SPACE.
+          MESSAGE S000 WITH TEXT-E04 '(Customer)' DISPLAY LIKE 'E'.
+          EXIT.
+        ENDIF.
+
+        CLEAR : GT_LIST, GV_DUP.
+        PERFORM CHECK_DUPULICATE USING PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID.
+        IF GV_DUP IS NOT INITIAL.
+          PERFORM MODI_CELL USING : PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'KUNNR' SPACE,
+                                    PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'KUNNR_TXT' SPACE.
+          MESSAGE S000 WITH TEXT-E02 DISPLAY LIKE 'E'.
+          EXIT.
+        ENDIF.
+        PERFORM MODI_CELL USING : PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'MESSAGE' SPACE.
+        PERFORM MODI_CELL USING : PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'ICON' SPACE.
+      WHEN 'LIFNR'.
+        CLEAR LV_GETVALUE.
+        PERFORM GET_CELL USING PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'LIFNR' LV_GETVALUE.
+
+        IF  LV_GETVALUE IS INITIAL.
+          PERFORM MODI_CELL USING PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'LIFNR_TXT' SPACE.
+          EXIT.
+        ENDIF.
+
+        CLEAR : GT_LFA1, LV_MODIVALUE.
+        READ TABLE GT_LFA1 WITH KEY LIFNR = LV_GETVALUE.
+        IF SY-SUBRC = 0.
+          LV_MODIVALUE = GT_LFA1-LIFNR_TXT.
+          PERFORM MODI_CELL USING PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'LIFNR_TXT' LV_MODIVALUE.
+        ELSE.
+          PERFORM MODI_CELL USING : PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'LIFNR' SPACE,
+                                    PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'LIFNR_TXT' SPACE.
+          MESSAGE S000 WITH TEXT-E04 '(Vendor)' DISPLAY LIKE 'E'.
+          EXIT.
+        ENDIF.
+
+        CLEAR : GT_LIST, GV_DUP.
+        PERFORM CHECK_DUPULICATE USING PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID.
+        IF GV_DUP IS NOT INITIAL.
+          PERFORM MODI_CELL USING : PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'LIFNR' SPACE,
+                                    PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'LIFNR_TXT' SPACE.
+          MESSAGE S000 WITH TEXT-E02 DISPLAY LIKE 'E'.
+          EXIT.
+        ENDIF.
+        PERFORM MODI_CELL USING : PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'MESSAGE' SPACE.
+        PERFORM MODI_CELL USING : PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'ICON' SPACE.
+      WHEN 'ZPRODH_GROUP'.
+        CLEAR LV_GETVALUE.
+        PERFORM GET_CELL USING PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'ZPRODH_GROUP' LV_GETVALUE.
+
+        IF  LV_GETVALUE IS INITIAL.
+          PERFORM MODI_CELL USING PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'ZPRODH_TXT' SPACE.
+          PERFORM CELL_STYLE2 USING LS_MOD_CELLS-ROW_ID 'MATNR' ' '.
+          PERFORM REFRESH_LIST.
+          EXIT.
+        ENDIF.
+
+        CLEAR : GT_0100, LV_MODIVALUE.
+        READ TABLE GT_0100 WITH KEY ZPRODH_GROUP = LV_GETVALUE BINARY SEARCH.
+        IF SY-SUBRC = 0.
+          LV_MODIVALUE = GT_0100-ZPRODH_TXT.
+          PERFORM MODI_CELL USING PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'ZPRODH_TXT' LV_MODIVALUE.
+        ELSE.
+          PERFORM MODI_CELL USING : PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'ZPRODH_GROUP' SPACE,
+                                    PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'ZPRODH_TXT' SPACE.
+          MESSAGE S000 WITH TEXT-E04 '(Group Product hierarchy)' DISPLAY LIKE 'E'.
+          EXIT.
+        ENDIF.
+
+        CLEAR : GT_LIST, GV_DUP.
+        PERFORM CHECK_DUPULICATE USING PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID.
+        IF GV_DUP IS NOT INITIAL.
+          PERFORM MODI_CELL USING : PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'ZPRODH_GROUP' SPACE,
+                                    PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'ZPRODH_TXT' SPACE.
+          MESSAGE S000 WITH TEXT-E02 DISPLAY LIKE 'E'.
+          EXIT.
+        ENDIF.
+        PERFORM MODI_CELL USING : PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'MESSAGE' SPACE.
+        PERFORM MODI_CELL USING : PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'ICON' SPACE.
+        IF GV_ZTYPE EQ 'M' OR GV_ZTYPE EQ 'I'.
+        ELSE.
+          PERFORM CELL_STYLE2 USING LS_MOD_CELLS-ROW_ID 'MATNR' 'DISP'.
+        ENDIF.
+        PERFORM REFRESH_LIST.
+
+      WHEN 'MATNR'.
+        CLEAR LV_GETVALUE.
+        PERFORM GET_CELL USING PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'MATNR' LV_GETVALUE.
+
+        IF LV_GETVALUE IS INITIAL.
+          PERFORM MODI_CELL USING PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'MATNR_TXT' SPACE.
+          PERFORM CELL_STYLE2 USING LS_MOD_CELLS-ROW_ID 'ZPRODH_GROUP' ' '.
+          PERFORM REFRESH_LIST.
+          EXIT.
+        ENDIF.
+
+        CLEAR LV_MODIVALUE.
+        SELECT SINGLE MAKTX INTO LV_MODIVALUE
+        FROM MAKT
+        WHERE MATNR = LV_GETVALUE
+          AND SPRAS = SY-LANGU.
+        IF LV_MODIVALUE IS INITIAL.
+          PERFORM MODI_CELL USING : PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'MATNR' SPACE,
+                                    PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'MATNR_TXT' SPACE.
+          MESSAGE S000 WITH TEXT-E04  '(SKU)' DISPLAY LIKE 'E'.
+          EXIT.
+        ELSE.
+          PERFORM MODI_CELL USING PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'MATNR_TXT' LV_MODIVALUE.
+        ENDIF.
+
+        CLEAR : GT_LIST, GV_DUP.
+        PERFORM CHECK_DUPULICATE USING PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID.
+        IF GV_DUP IS NOT INITIAL.
+          PERFORM MODI_CELL USING : PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'MATNR' SPACE,
+                                    PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'MATNR_TXT' SPACE.
+          MESSAGE S000 WITH TEXT-E02 DISPLAY LIKE 'E'.
+          EXIT.
+        ENDIF.
+
+        PERFORM MODI_CELL USING : PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'MESSAGE' SPACE.
+        PERFORM MODI_CELL USING : PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'ICON' SPACE.
+
+        PERFORM CELL_STYLE2 USING LS_MOD_CELLS-ROW_ID 'ZPRODH_GROUP' 'DISP'.
+        PERFORM GET_GROUP USING LV_GETVALUE LV_MODIVALUE.
+        PERFORM MODI_CELL USING : PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'ZPRODH_GROUP' LV_MODIVALUE.
+        PERFORM REFRESH_LIST.
+
+      WHEN 'ZMARGIN'.
+        DATA : LV_MARGIN LIKE ZSDT0020-ZMARGIN.
+        CLEAR LV_MARGIN.
+        CALL METHOD PR_DATA_CHANGED->GET_CELL_VALUE
+          EXPORTING
+            I_ROW_ID    = LS_MOD_CELLS-ROW_ID
+            I_FIELDNAME = 'ZMARGIN'
+          IMPORTING
+            E_VALUE     = LV_MARGIN.
+
+        IF LV_MARGIN IS NOT INITIAL.
+          PERFORM MODI_CELL USING : PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'MESSAGE' SPACE.
+          PERFORM MODI_CELL USING : PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'ICON' SPACE.
+        ENDIF.
+    ENDCASE.
+    IF GV_ZTYPE EQ 'M' OR GV_ZTYPE EQ 'I'.
+      IF LV_MARGIN IS INITIAL.
+        PERFORM GET_GROUP_MARGIN USING PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID.
+        PERFORM MODI_CELL USING : PR_DATA_CHANGED LS_MOD_CELLS-ROW_ID 'ZMARGIN' GV_MARGIN.
+      ENDIF.
+    ENDIF.
+  ENDLOOP.
+
+
+ENDFORM. " HANDLE_DATA_CHANGED
+*&---------------------------------------------------------------------*
+*&      Form  HANDLE_USER_COMMAND
+*&---------------------------------------------------------------------*
+FORM HANDLE_USER_COMMAND USING P_UCOMM.
+
+  CASE P_UCOMM.
+    WHEN 'ADD'.
+      PERFORM ADD_LINE.
+    WHEN 'DELETE'.
+      PERFORM DELETE_LINE.
+  ENDCASE.
+
+ENDFORM. " HANDLE_USER_COMMAND
+*&---------------------------------------------------------------------*
+*& Form POPUP_MSG
+*&---------------------------------------------------------------------*
+FORM POPUP_MSG USING P_MSG1 P_MSG2 PV_CHECK.
+
+  CLEAR PV_CHECK.
+  CALL FUNCTION 'POPUP_TO_CONFIRM'
+    EXPORTING
+      TITLEBAR       = P_MSG1
+      TEXT_QUESTION  = P_MSG2
+      TEXT_BUTTON_1  = 'YES'
+      TEXT_BUTTON_2  = 'NO'
+    IMPORTING
+      ANSWER         = PV_CHECK
+    EXCEPTIONS
+      TEXT_NOT_FOUND = 1
+      OTHERS         = 2.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form HANDLE_HOTSPOT_CLICK
+*&---------------------------------------------------------------------*
+FORM HANDLE_HOTSPOT_CLICK  USING P_ROW_ID
+                                 P_COLUMN_ID.
+
+  CLEAR GT_LIST.
+  READ TABLE GT_LIST INDEX P_ROW_ID.
+  CASE P_COLUMN_ID.
+
+  ENDCASE.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form ALPHA_INPUT
+*&---------------------------------------------------------------------*
+FORM ALPHA_INPUT  USING    P_DATA.
+
+  CALL FUNCTION 'CONVERSION_EXIT_ALPHA_INPUT'
+    EXPORTING
+      INPUT  = P_DATA
+    IMPORTING
+      OUTPUT = P_DATA.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form HANDLE_TOOLBAR
+*&---------------------------------------------------------------------*
+FORM HANDLE_TOOLBAR   USING PE_OBJECT TYPE REF TO CL_ALV_EVENT_TOOLBAR_SET
+                            PE_INTERACTIVE.
+*******BLOCKED FOR TEST -START
+*Not allow modify confirmed data
+*  READ TABLE GT_LIST WITH KEY ZCONFIRM = 'X'.
+*  CHECK SY-SUBRC NE 0.
+*
+*  IF P_DIS = 'X'.
+*    CHECK P_DATE2 >= SY-DATUM.
+*  ENDIF.
+*******BLOCKED FOR TEST -END
+  DATA: LS_TOOLBAR TYPE STB_BUTTON.
+  DATA: LS_UPLOAD  TYPE STB_BUTTON.
+
+  CLEAR LS_UPLOAD.
+  MOVE 3 TO LS_UPLOAD-BUTN_TYPE.
+  APPEND LS_UPLOAD TO PE_OBJECT->MT_TOOLBAR.
+
+*  IF P_DIS IS INITIAL.
+*    LS_TOOLBAR-FUNCTION  = 'ADD'.
+*    LS_TOOLBAR-ICON      = ICON_INSERT_ROW.
+*    LS_TOOLBAR-BUTN_TYPE = SPACE.
+*    LS_TOOLBAR-DISABLED  = SPACE.
+*    LS_TOOLBAR-TEXT      = 'Add Line'.
+*    LS_TOOLBAR-QUICKINFO = 'Add Line'.
+*    LS_TOOLBAR-CHECKED   = SPACE.
+*    APPEND LS_TOOLBAR TO PE_OBJECT->MT_TOOLBAR.
+*
+*    CLEAR LS_UPLOAD.
+*    MOVE 3 TO LS_UPLOAD-BUTN_TYPE.
+*    APPEND LS_UPLOAD TO PE_OBJECT->MT_TOOLBAR.
+*
+*    LS_TOOLBAR-FUNCTION  = 'DELETE'.
+*    LS_TOOLBAR-ICON      = ICON_DELETE_ROW.
+*    LS_TOOLBAR-BUTN_TYPE = SPACE.
+*    LS_TOOLBAR-DISABLED  = SPACE.
+*    LS_TOOLBAR-TEXT      = 'Delete Line'.
+*    LS_TOOLBAR-QUICKINFO = 'Delete Line'.
+*    LS_TOOLBAR-CHECKED   = SPACE.
+*    APPEND LS_TOOLBAR TO PE_OBJECT->MT_TOOLBAR.
+*  ELSE.
+  IF GV_NOT_CONFIRM IS NOT INITIAL.
+
+    LS_TOOLBAR-FUNCTION  = 'ADD'.
+    LS_TOOLBAR-ICON      = ICON_INSERT_ROW.
+    LS_TOOLBAR-BUTN_TYPE = SPACE.
+    LS_TOOLBAR-DISABLED  = SPACE.
+    LS_TOOLBAR-TEXT      = 'Add Line'.
+    LS_TOOLBAR-QUICKINFO = 'Add Line'.
+    LS_TOOLBAR-CHECKED   = SPACE.
+    APPEND LS_TOOLBAR TO PE_OBJECT->MT_TOOLBAR.
+
+    CLEAR LS_UPLOAD.
+    MOVE 3 TO LS_UPLOAD-BUTN_TYPE.
+    APPEND LS_UPLOAD TO PE_OBJECT->MT_TOOLBAR.
+
+    LS_TOOLBAR-FUNCTION  = 'DELETE'.
+    LS_TOOLBAR-ICON      = ICON_DELETE_ROW.
+    LS_TOOLBAR-BUTN_TYPE = SPACE.
+    LS_TOOLBAR-DISABLED  = SPACE.
+    LS_TOOLBAR-TEXT      = 'Delete Line'.
+    LS_TOOLBAR-QUICKINFO = 'Delete Line'.
+    LS_TOOLBAR-CHECKED   = SPACE.
+    APPEND LS_TOOLBAR TO PE_OBJECT->MT_TOOLBAR.
+
+  ENDIF.
+*  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form HANDLE_DOUBLE_CLICK
+*&---------------------------------------------------------------------*
+FORM HANDLE_DOUBLE_CLICK  USING    PE_ROW
+                                   PE_COLUMN.
+
+  CASE PE_COLUMN.
+*    WHEN 'VBELN'.
+*      CLEAR : GT_LIST.
+*      READ TABLE GT_LIST INDEX PE_ROW.
+*      CHECK SY-SUBRC EQ 0.
+*      SET PARAMETER ID 'AUN' FIELD GT_LIST-VBELN.
+*      CALL TRANSACTION 'VA03' AND SKIP FIRST SCREEN.
+  ENDCASE.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form EVENT_TOP_OF_PAGE
+*&---------------------------------------------------------------------*
+FORM HANDLE_TOP_OF_PAGE  USING PE_DYNDOC_ID TYPE REF TO CL_DD_DOCUMENT.
+
+  DATA : LV_TEXT(255) TYPE C.
+
+  CLEAR : LV_TEXT.
+
+  IF P_CRE = 'X'.
+    LV_TEXT = TEXT-S01.
+  ELSEIF P_DIS = 'X'.
+    LV_TEXT = TEXT-S02.
+  ENDIF.
+
+  LV_TEXT = LV_TEXT && ' Mode'.
+  CALL METHOD PE_DYNDOC_ID->ADD_TEXT
+    EXPORTING
+      TEXT         = LV_TEXT
+      SAP_FONTSIZE = 'LARGE'.
+
+  CALL METHOD PE_DYNDOC_ID->NEW_LINE.
+
+  CLEAR LV_TEXT.
+  IF S_DATE[] IS INITIAL.
+    CONCATENATE 'Srart Date : ' P_DATE INTO LV_TEXT SEPARATED BY SPACE.
+  ELSE.
+    CONCATENATE 'Srart Date : ' S_DATE-LOW '~'
+                'End Date : ' S_DATE-HIGH
+           INTO LV_TEXT SEPARATED BY SPACE.
+  ENDIF.
+  CALL METHOD PE_DYNDOC_ID->ADD_TEXT
+    EXPORTING
+      TEXT         = LV_TEXT
+      SAP_FONTSIZE = 'LARGE'.
+
+  CALL METHOD PE_DYNDOC_ID->NEW_LINE.
+
+  CLEAR LV_TEXT.
+
+  PERFORM GET_DOMAIN_ZTYPE USING GV_ZTYPE CHANGING LV_TEXT.
+  CONCATENATE 'Process type : ' LV_TEXT INTO LV_TEXT SEPARATED BY SPACE.
+  CALL METHOD PE_DYNDOC_ID->ADD_TEXT
+    EXPORTING
+      TEXT         = LV_TEXT
+      SAP_EMPHASIS = CL_DD_AREA=>HEADING
+      SAP_COLOR    = CL_DD_AREA=>LIST_BACKGROUND_INV.
+
+  CALL METHOD PE_DYNDOC_ID->NEW_LINE.
+
+  IF GV_SUCCESS IS NOT INITIAL.
+    CLEAR : LV_TEXT.
+    LV_TEXT = TEXT-005 && ' :' && GV_SUCCESS.
+
+    CALL METHOD PE_DYNDOC_ID->ADD_TEXT
+      EXPORTING
+        TEXT         = LV_TEXT
+        SAP_EMPHASIS = CL_DD_AREA=>HEADING
+        SAP_COLOR    = CL_DD_AREA=>LIST_HEADING_INT.
+  ENDIF.
+
+  IF GV_FAILURE IS NOT INITIAL.
+    CLEAR : LV_TEXT.
+    LV_TEXT = TEXT-006 && ' :' && GV_FAILURE.
+
+    CALL METHOD PE_DYNDOC_ID->ADD_TEXT
+      EXPORTING
+        TEXT         = LV_TEXT
+        SAP_EMPHASIS = CL_DD_AREA=>HEADING
+        SAP_COLOR    = CL_DD_AREA=>LIST_NEGATIVE_INT.
+
+    CALL METHOD PE_DYNDOC_ID->NEW_LINE.
+  ENDIF.
+
+  IF GO_HEADER IS INITIAL.
+
+    CREATE OBJECT GO_HEADER
+      EXPORTING
+        PARENT = G_PARENT_HTML.
+
+  ENDIF.
+
+  CALL METHOD PE_DYNDOC_ID->MERGE_DOCUMENT.
+  PE_DYNDOC_ID->HTML_CONTROL = GO_HEADER.
+
+  CALL METHOD PE_DYNDOC_ID->DISPLAY_DOCUMENT
+    EXPORTING
+      REUSE_CONTROL      = 'X'
+      PARENT             = G_PARENT_HTML
+    EXCEPTIONS
+      HTML_DISPLAY_ERROR = 1.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form AUTHORIZATION_CHECK
+*&---------------------------------------------------------------------*
+FORM AUTHORIZATION_CHECK .
+
+*  DATA : LS_RETURN LIKE BAPIRETURN1 .
+*
+*  CALL FUNCTION 'ZBC_AUTHORIZATION_CHECK'
+*    EXPORTING
+**     I_BUKRS   =
+**     I_KOKRS   =
+**     I_WERKS   =
+**      I_VKORG   = P_VKORG
+**     I_EKORG   =
+*    IMPORTING
+*      ES_RETURN = LS_RETURN.
+*
+*  IF LS_RETURN-TYPE = 'E'.
+*    MESSAGE E000 WITH LS_RETURN-MESSAGE.
+*  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form GET_AUTHORITY
+*&---------------------------------------------------------------------*
+FORM GET_AUTHORITY .
+
+*  DATA : LT_VKORG LIKE TABLE OF RANGE_VKORG WITH HEADER LINE.
+*
+*  _CLEAR LT_VKORG.
+*  CALL FUNCTION 'ZSD_GET_AUTHORITY'
+*    EXPORTING
+*      I_UNAME = SY-UNAME
+*    TABLES
+*      T_VKORG = LT_VKORG.
+*
+*  READ TABLE LT_VKORG INDEX 1.
+*  P_VKORG = LT_VKORG-LOW.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form MODIFY_SELECTION_SCREEN
+*&---------------------------------------------------------------------*
+FORM MODIFY_SELECTION_SCREEN .
+
+  IF GV_ZTYPE = 'P' OR GV_ZTYPE = 'S'.
+    LOOP AT SCREEN.
+      IF SCREEN-GROUP1 = 'Z01'.
+        SCREEN-INPUT = 0.
+        SCREEN-ACTIVE = 0.
+      ENDIF.
+      IF SCREEN-GROUP1 = 'Z02'.
+        SCREEN-INPUT = 0.
+        SCREEN-ACTIVE = 1.
+      ENDIF.
+      MODIFY SCREEN.
+    ENDLOOP.
+  ELSE.
+    LOOP AT SCREEN.
+      IF SCREEN-GROUP1 = 'Z01'.
+        SCREEN-INPUT = 0.
+        SCREEN-ACTIVE = 1.
+      ENDIF.
+      IF SCREEN-GROUP1 = 'Z02'.
+        SCREEN-INPUT = 0.
+        SCREEN-ACTIVE = 0.
+      ENDIF.
+      MODIFY SCREEN.
+    ENDLOOP.
+  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form REQUIRED_FIELD_CHECK
+*&---------------------------------------------------------------------*
+FORM REQUIRED_FIELD_CHECK   USING  PV_DATA PV_TEXT.
+
+  CHECK PV_DATA IS INITIAL.
+
+  IF GT_LIST-MESSAGE IS INITIAL.
+    GT_LIST-MESSAGE = '(' && PV_TEXT && ')' && TEXT-E07.
+    GT_LIST-ICON = ICON_RED_LIGHT.
+  ELSE.
+    GT_LIST-MESSAGE = GT_LIST-MESSAGE && '/' && '(' && PV_TEXT && ')'.
+  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form GET_DATA
+*&---------------------------------------------------------------------*
+FORM GET_DATA .
+
+  PERFORM GET_F4DATA.
+
+  _CLEAR GT_LIST.
+  SELECT A~ZKUNNR_IC
+         A~KUNNR
+         A~LIFNR
+         A~ZPRODH_GROUP
+         A~MATNR
+         A~ZSTART
+         A~ZTYPE
+         A~ZMARGIN
+         A~ZEXCEPT
+         F~ZCONFIRM
+         A~REMARK
+         B~NAME_ORG1   AS ZKUNNR_IC_TXT
+         C~NAME1       AS LIFNR_TXT
+         D~MAKTX       AS MATNR_TXT
+         E~VTEXT       AS ZPRODH_TXT
+  INTO CORRESPONDING FIELDS OF TABLE GT_LIST
+  FROM ZSDT0020 AS A INNER JOIN BUT000   AS B ON A~ZKUNNR_IC = B~PARTNER
+                     LEFT  JOIN LFA1     AS C ON A~LIFNR     = C~LIFNR
+                     LEFT  JOIN MAKT     AS D ON A~MATNR     = D~MATNR
+                                             AND D~SPRAS     = SY-LANGU
+                     LEFT  JOIN ZSDT0100 AS E ON A~ZPRODH_GROUP = E~ZPRODH_GROUP
+                     LEFT  JOIN ZSDT0021 AS F ON A~ZSTART    = F~ZSTART
+                                             AND A~ZTYPE     = F~ZTYPE
+  WHERE A~ZSTART EQ GV_DATE
+    AND A~ZTYPE  EQ GV_ZTYPE.
+
+  LOOP AT GT_LIST.
+
+    CLEAR GT_KNA1.
+    READ TABLE GT_KNA1 WITH KEY KUNNR = GT_LIST-KUNNR BINARY SEARCH.
+    GT_LIST-KUNNR_TXT = GT_KNA1-KUNNR_TXT.
+
+    GT_LIST-ICON = ICON_YELLOW_LIGHT.
+    GT_LIST-FLAG = 'X' .
+    PERFORM GET_DOMAIN_ZTYPE USING GV_ZTYPE CHANGING GT_LIST-ZTYPE.
+
+    MODIFY GT_LIST TRANSPORTING KUNNR KUNNR_TXT ICON FLAG ZTYPE.
+
+  ENDLOOP.
+
+  CLEAR : GV_NOT_CONFIRM.
+  READ TABLE GT_LIST INDEX 1.
+
+  IF SY-SUBRC = 0.
+    LOOP AT GT_LIST WHERE ZCONFIRM = SPACE.
+      GV_NOT_CONFIRM = 'X'.
+    ENDLOOP.
+
+    IF SY-SUBRC <> 0.
+      GV_NOT_CONFIRM = ''.
+    ENDIF.
+  ELSE.
+    GV_NOT_CONFIRM = 'X'.
+  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form SAVE_DATA
+*&---------------------------------------------------------------------*
+FORM SAVE_DATA .
+
+  DATA : LT_SAVE     LIKE TABLE OF ZSDT0020 WITH HEADER LINE,
+         LV_ERR,
+         LV_MSG(100),
+         LV_CHECK,
+         LV_ZSTART   LIKE ZSDT0020-ZSTART.
+
+  DATA : LT_0021 LIKE TABLE OF ZSDT0021 WITH HEADER LINE.
+
+*Not allow modify confirmed data
+  READ TABLE GT_LIST WITH KEY ZCONFIRM = 'X'.
+  CHECK SY-SUBRC NE 0.
+
+
+  PERFORM POPUP_MSG USING 'Data save'
+                          'Do you want to save? For the same start date, it is overwritten.'
+                           LV_CHECK.
+
+  CHECK LV_CHECK EQ '1'.
+
+  CLEAR LV_CHECK.
+  LOOP AT GT_LIST.
+
+    CLEAR : GT_LIST-ICON, GT_LIST-MESSAGE.
+
+    PERFORM REQUIRED_FIELD_CHECK USING : GT_LIST-ZKUNNR_IC  TEXT-F03,
+                                         GT_LIST-KUNNR     TEXT-F05,
+                                         GT_LIST-LIFNR      TEXT-F07,
+                                         GT_LIST-ZMARGIN    TEXT-F13.
+
+    IF GT_LIST-ZPRODH_GROUP IS INITIAL AND GT_LIST-MATNR IS INITIAL.
+      IF GT_LIST-MESSAGE IS INITIAL.
+        GT_LIST-MESSAGE = TEXT-E08.
+        GT_LIST-ICON = ICON_RED_LIGHT.
+      ELSE.
+        GT_LIST-MESSAGE = GT_LIST-MESSAGE && '/' && TEXT-E08.
+      ENDIF.
+    ENDIF.
+    IF GT_LIST-ICON = ICON_RED_LIGHT.
+      MODIFY GT_LIST TRANSPORTING ICON MESSAGE.
+      LV_CHECK = 'X'.
+      EXIT.
+    ENDIF.
+  ENDLOOP.
+
+  IF LV_CHECK = 'X'.
+    MESSAGE S000 WITH TEXT-E03 DISPLAY LIKE 'E'.
+    EXIT.
+  ENDIF.
+
+  READ TABLE GT_LIST INDEX 1.
+  SELECT SINGLE ZSTART INTO LV_ZSTART
+  FROM ZSDT0020
+  WHERE ZSTART = GT_LIST-ZSTART
+    AND ZTYPE  = GV_ZTYPE.
+  IF SY-SUBRC = 0.
+    DELETE FROM ZSDT0020 WHERE ZSTART = GT_LIST-ZSTART
+                           AND ZTYPE  = GV_ZTYPE.
+    COMMIT WORK.
+  ENDIF.
+
+  CLEAR : LV_ERR, LV_MSG.
+
+  LOOP AT GT_LIST.
+    MOVE-CORRESPONDING GT_LIST TO LT_SAVE.
+    IF GV_ZTYPE EQ 'M' OR GV_ZTYPE EQ 'I'.
+      CLEAR LT_SAVE-ZPRODH_GROUP.
+    ENDIF.
+    LT_SAVE-ZTYPE = GV_ZTYPE.
+    LT_SAVE-END_DATE = S_DATE-HIGH.
+    LT_SAVE-ERNAM = SY-UNAME.
+    LT_SAVE-ERDAT = SY-DATUM.
+    LT_SAVE-ERZET = SY-UZEIT.
+    APPEND LT_SAVE. CLEAR LT_SAVE.
+  ENDLOOP.
+
+  CHECK LT_SAVE[] IS NOT INITIAL.
+
+  CLEAR : LT_0021, LT_0021[].
+  MODIFY ZSDT0020 FROM TABLE LT_SAVE.
+  IF SY-SUBRC = 0.
+    COMMIT WORK.
+    MESSAGE S010.
+    GT_LIST-ICON = ICON_GREEN_LIGHT.
+    GT_LIST-MESSAGE = SPACE.
+    MODIFY GT_LIST TRANSPORTING ICON MESSAGE WHERE ZSTART NE SPACE.
+
+
+    LT_0021-ZSTART  = GV_DATE.
+    LT_0021-ZTYPE   = GV_ZTYPE.
+    LT_0021-ZMARGIN = 'X'.
+    LT_0021-ZMARGIN_DATE = SY-DATLO.
+    APPEND LT_0021.
+    MODIFY ZSDT0021 FROM TABLE LT_0021.
+  ELSE.
+    ROLLBACK WORK.
+    MESSAGE S011  DISPLAY LIKE 'E'.
+  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form COPY_DATA
+*&---------------------------------------------------------------------*
+FORM COPY_DATA .
+
+  CLEAR GV_SDATE.
+  CALL SCREEN '9100' STARTING AT 10 5.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form SET_DATE
+*&---------------------------------------------------------------------*
+FORM SET_DATE .
+
+  DATA : LV_ANS    TYPE C,
+         LT_FIELDS TYPE TABLE OF SVAL WITH HEADER LINE.
+
+  LT_FIELDS-TABNAME   = 'ZSDT0020'.
+  LT_FIELDS-FIELDNAME = 'ZSTART'.
+  LT_FIELDS-FIELD_OBL = 'X'.
+  APPEND LT_FIELDS. CLEAR LT_FIELDS.
+
+  CALL FUNCTION 'POPUP_GET_VALUES'
+    EXPORTING
+      POPUP_TITLE     = 'SET START DATE'
+    IMPORTING
+      RETURNCODE      = LV_ANS
+    TABLES
+      FIELDS          = LT_FIELDS
+    EXCEPTIONS
+      ERROR_IN_FIELDS = 1
+      OTHERS          = 2.
+
+  CHECK LV_ANS NE 'A'.
+  READ TABLE LT_FIELDS INDEX 1.
+  IF SY-SUBRC = 0.
+    CLEAR GV_SDATE.
+    GV_SDATE = LT_FIELDS-VALUE.
+  ENDIF.
+  LOOP AT GT_LIST.
+    GT_LIST-ZSTART = GV_SDATE.
+    MODIFY GT_LIST TRANSPORTING ZSTART.
+  ENDLOOP.
+
+  PERFORM REFRESH_LIST.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form SET_DISPLAY_9100
+*&---------------------------------------------------------------------*
+FORM SET_DISPLAY_9100 .
+
+  FIELD-SYMBOLS: <GT_TAB> TYPE TABLE.
+  UNASSIGN: <GT_TAB>.
+
+*  ASSIGN: GT_LIST1[] TO <GT_TAB>.
+
+  CALL METHOD GO_GRID1->SET_READY_FOR_INPUT
+    EXPORTING
+      I_READY_FOR_INPUT = 1.
+
+  CALL METHOD GO_GRID1->SET_TABLE_FOR_FIRST_DISPLAY
+    EXPORTING
+      I_DEFAULT            = 'X'
+      IS_LAYOUT            = GS_LAYOUT1
+      IS_VARIANT           = GS_VARIANT
+      IT_TOOLBAR_EXCLUDING = GT_EXCLUDE
+      I_SAVE               = 'A'
+    CHANGING
+      IT_OUTTAB            = <GT_TAB>[]
+      IT_FIELDCATALOG      = GT_FCAT1
+      IT_SORT              = GT_SORT1.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form REFRESH_LIST_9100
+*&---------------------------------------------------------------------*
+FORM REFRESH_LIST_9100 .
+
+  CALL METHOD GO_GRID1->SET_FRONTEND_LAYOUT
+    EXPORTING
+      IS_LAYOUT = GS_LAYOUT1.
+
+  GS_STBL1-ROW = 'X'.
+  GS_STBL1-COL = 'X'.
+
+  CALL METHOD GO_GRID1->REFRESH_TABLE_DISPLAY
+    EXPORTING
+      IS_STABLE = GS_STBL1.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form SET_FRAME_9100
+*&---------------------------------------------------------------------*
+FORM SET_FRAME_9100 .
+
+  CREATE OBJECT GO_CUSTOM1
+    EXPORTING
+      CONTAINER_NAME = 'GO_CON1'.
+
+  CREATE OBJECT GO_GRID1
+    EXPORTING
+      I_PARENT = GO_CUSTOM1.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form SET_LAYOUT_9100
+*&---------------------------------------------------------------------*
+FORM SET_LAYOUT_9100.
+
+  CLEAR GS_LAYOUT1.
+  GS_LAYOUT1-SEL_MODE   = 'A'.
+  GS_LAYOUT1-ZEBRA      = 'X'.
+  GS_LAYOUT1-CWIDTH_OPT = 'X'.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_9100  INPUT
+*&---------------------------------------------------------------------*
+MODULE USER_COMMAND_9100 INPUT.
+
+  CASE OK_CODE.
+    WHEN 'SEARCH'.
+      PERFORM GET_COPY_DATA.
+  ENDCASE.
+
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*& Form SEARCH_HELP_SDATE
+*&---------------------------------------------------------------------*
+FORM SEARCH_HELP_SDATE USING PV_FIELD.
+
+  DATA : BEGIN OF LT_LINE OCCURS 0,
+           ZSTART   LIKE ZSDT0020-ZSTART,
+           ZTYPE    LIKE ZSDT0020-ZTYPE,
+           ZCONFIRM LIKE ZSDT0020-ZCONFIRM,
+         END OF LT_LINE.
+
+  DATA: LV_DATE    LIKE WORKFLDS-GKDAY,
+        LV_DISPLAY LIKE WORKFLDS-DISPL.
+
+  RANGES : LR_ZTYPE FOR ZSDT0020-ZTYPE.
+
+  _CLEAR LR_ZTYPE.
+  IF GV_ZTYPE IS NOT INITIAL.
+    _RANGE : LR_ZTYPE 'I' 'EQ' GV_ZTYPE ''.
+  ENDIF.
+
+  _CLEAR LT_LINE.
+  SELECT ZSTART ZTYPE ZCONFIRM
+  INTO CORRESPONDING FIELDS OF TABLE LT_LINE
+  FROM ZSDT0021
+  WHERE ZTYPE IN LR_ZTYPE.
+
+  IF SY-SUBRC = 0.
+    SORT LT_LINE BY ZSTART DESCENDING.
+    DELETE ADJACENT DUPLICATES FROM LT_LINE COMPARING ZSTART.
+
+    CLEAR : GT_RETURNTAB[], GT_RETURNTAB.
+    CALL FUNCTION 'F4IF_INT_TABLE_VALUE_REQUEST'
+      EXPORTING
+        RETFIELD        = 'ZSTART'
+        DYNPROFIELD     = PV_FIELD
+        DYNPPROG        = SY-CPROG
+        DYNPNR          = SY-DYNNR
+        WINDOW_TITLE    = 'START DATE'
+        VALUE_ORG       = 'S'
+      TABLES
+        VALUE_TAB       = LT_LINE
+        RETURN_TAB      = GT_RETURNTAB
+      EXCEPTIONS
+        PARAMETER_ERROR = 1
+        NO_VALUES_FOUND = 2
+        OTHERS          = 3.
+  ELSE.
+    CLEAR: LV_DATE.
+    LV_DATE = SY-DATUM.
+
+    CALL FUNCTION 'F4_DATE'
+      EXPORTING
+        DATE_FOR_FIRST_MONTH = LV_DATE
+        DISPLAY              = LV_DISPLAY
+      IMPORTING
+        SELECT_DATE          = P_DATE
+      EXCEPTIONS
+        OTHERS               = 4.
+  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form CHECK_DATE
+*&---------------------------------------------------------------------*
+FORM CHECK_DATE .
+
+  RANGES : LR_ZTYPE FOR ZSDT0021-ZTYPE.
+
+  DATA: BEGIN OF LT_0021 OCCURS 0,
+          ZSTART LIKE ZSDT0021-ZSTART,
+          ZTYPE  LIKE ZSDT0021-ZTYPE,
+        END OF LT_0021.
+
+  DATA: LV_ZSTART  LIKE ZSDT0021-ZSTART.
+
+  _CLEAR : LT_0021, LR_ZTYPE.
+
+*-마지막 기준일을 확인
+*-N, M, I는 S와 P를 제외한 타입들의 마지막 날짜 체크.
+*-S와 P타입은 해당타입의 마지막 날짜만 찾아오면 된다.
+  CASE GV_ZTYPE.
+    WHEN 'S' OR 'P'.
+      _RANGE LR_ZTYPE 'I' 'EQ' GV_ZTYPE ''.
+    WHEN OTHERS.
+      _RANGE : LR_ZTYPE 'E' 'EQ' 'S' '',
+               LR_ZTYPE 'E' 'EQ' 'P' ''.
+  ENDCASE.
+
+  CLEAR: LV_ZSTART.
+  SELECT ZSTART ZTYPE
+    INTO CORRESPONDING FIELDS OF TABLE LT_0021
+    FROM ZSDT0021
+    WHERE ZTYPE IN LR_ZTYPE .
+
+  SORT LT_0021 BY ZSTART DESCENDING.
+
+  READ TABLE LT_0021 INDEX 1.
+  LV_ZSTART = LT_0021-ZSTART.
+
+  IF S_DATE[] IS INITIAL.
+    CASE 'X'.
+      WHEN P_CRE.
+        IF P_DATE IS INITIAL.
+          MESSAGE S000 WITH TEXT-E05 DISPLAY LIKE 'E'.
+          LEAVE LIST-PROCESSING.
+        ELSE.
+          IF P_DATE < LV_ZSTART.
+            MESSAGE S000 WITH TEXT-E06 DISPLAY LIKE 'E'.
+            LEAVE LIST-PROCESSING.
+          ENDIF.
+        ENDIF.
+      WHEN P_DIS.
+        IF P_DATE IS INITIAL.
+          MESSAGE S000 WITH TEXT-E05 DISPLAY LIKE 'E'.
+          LEAVE LIST-PROCESSING.
+        ENDIF.
+    ENDCASE.
+  ELSE.
+    IF S_DATE-LOW < LV_ZSTART.
+      MESSAGE S000 WITH TEXT-E06 DISPLAY LIKE 'E'.
+      LEAVE LIST-PROCESSING.
+    ENDIF.
+  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form GET_COPY_DATA
+*&---------------------------------------------------------------------*
+FORM GET_COPY_DATA .
+
+  DATA : LT_LIST LIKE TABLE OF GT_LIST WITH HEADER LINE.
+
+  CLEAR LT_LIST.
+  SELECT A~ZKUNNR_IC
+         A~KUNNR
+         A~LIFNR
+         A~ZPRODH_GROUP
+         A~MATNR
+         A~ZMARGIN
+         A~ZEXCEPT
+         B~NAME_ORG1       AS ZKUNNR_IC_TXT
+         C~NAME1           AS LIFNR_TXT
+         D~MAKTX           AS MATNR_TXT
+         F~VTEXT           AS ZPRODH_TXT
+  INTO CORRESPONDING FIELDS OF TABLE LT_LIST
+  FROM ZSDT0020 AS A INNER JOIN BUT000   AS B ON A~ZKUNNR_IC    = B~PARTNER
+                     LEFT  JOIN LFA1     AS C ON A~LIFNR        = C~LIFNR
+                     LEFT  JOIN MAKT     AS D ON A~MATNR        = D~MATNR
+                     LEFT  JOIN ZSDT0100 AS F ON A~ZPRODH_GROUP = F~ZPRODH_GROUP
+                     INNER JOIN ZSDT0021 AS G ON A~ZSTART       = G~ZSTART
+                                             AND A~ZTYPE        = G~ZTYPE
+  WHERE A~ZSTART   = GV_SDATE
+    AND A~ZTYPE    = GV_ZTYPE
+    AND G~ZCONFIRM = 'X'.
+
+  SORT LT_LIST BY ZKUNNR_IC KUNNR LIFNR ZPRODH_GROUP MATNR.
+
+  LOOP AT LT_LIST.
+    CLEAR GT_LIST.
+    MOVE-CORRESPONDING LT_LIST TO GT_LIST.
+    GT_LIST-ZSTART = P_DATE.
+    GT_LIST-ICON = ICON_YELLOW_LIGHT.
+    APPEND GT_LIST.
+  ENDLOOP.
+
+  SORT GT_LIST BY ZKUNNR_IC KUNNR LIFNR ZPRODH_GROUP MATNR ZSTART.
+  DELETE ADJACENT DUPLICATES FROM GT_LIST COMPARING ZKUNNR_IC KUNNR LIFNR ZPRODH_GROUP MATNR ZSTART.
+
+  PERFORM REFRESH_LIST.
+  LEAVE TO SCREEN 0.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form GET_F4DATA
+*&---------------------------------------------------------------------*
+FORM GET_F4DATA .
+
+  _CLEAR : GT_0040, GT_0100, GT_KNA1, GT_LFA1.
+
+*- Intercompany
+  SELECT A~ZKUNNR_IC
+         B~NAME_ORG1 AS ZKUNNR_IC_TXT
+  INTO CORRESPONDING FIELDS OF TABLE GT_0040
+  FROM ZSDT0040 AS A INNER JOIN BUT000 AS B ON A~ZKUNNR_IC = B~PARTNER.
+  SORT GT_0040 BY ZKUNNR_IC.
+
+*- Group Product hierarchy
+  SELECT ZPRODH_GROUP VTEXT AS ZPRODH_TXT INTO CORRESPONDING FIELDS OF TABLE GT_0100
+  FROM ZSDT0100.
+  CLEAR GT_0100.
+  GT_0100-ZPRODH_GROUP = 'ALL'.
+  APPEND GT_0100.
+  SORT GT_0100 BY ZPRODH_GROUP.
+
+
+*KNA1 + 0041(INTERNAL CUSTOMER)
+  SELECT ZKUNNR AS KUNNR
+         ZKUNNR_DESC AS KUNNR_TXT
+  APPENDING CORRESPONDING FIELDS OF TABLE GT_KNA1
+  FROM ZSDT0041.
+
+  SELECT KUNNR
+         NAME1 AS KUNNR_TXT
+  APPENDING CORRESPONDING FIELDS OF TABLE GT_KNA1
+  FROM KNA1.
+  INSERT INITIAL LINE INTO GT_KNA1 INDEX 1.
+  SORT GT_KNA1 BY KUNNR.
+
+
+*-Vendor
+  SELECT LIFNR NAME1 AS LIFNR_TXT INTO CORRESPONDING FIELDS OF TABLE GT_LFA1
+  FROM LFA1.
+  INSERT INITIAL LINE INTO GT_LFA1 INDEX 1.
+  SORT GT_LFA1 BY LIFNR.
+  GT_LFA1-LIFNR = 'ALL'.
+  MODIFY GT_LFA1 TRANSPORTING LIFNR WHERE LIFNR = SPACE.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form CHECK_DUPULICATE
+*&---------------------------------------------------------------------*
+FORM CHECK_DUPULICATE USING PR_DATA_CHANGED TYPE REF TO CL_ALV_CHANGED_DATA_PROTOCOL
+                            PV_ROW.
+  DATA : LT_DUP LIKE TABLE OF GT_LIST WITH HEADER LINE.
+  DATA : LV_KUNNR        LIKE KNA1-KUNNR,
+         LV_LIFNR        LIKE LFA1-LIFNR,
+         LV_ZKUNNR_IC    LIKE ZSDT0020-ZKUNNR_IC,
+         LV_ZPRODH_GROUP LIKE ZSDT0100-ZPRODH_GROUP,
+         LV_MATNR        LIKE MARA-MATNR.
+
+  CLEAR : LV_KUNNR, LV_LIFNR, LV_ZKUNNR_IC, LV_ZPRODH_GROUP, LV_MATNR.
+
+  CALL METHOD PR_DATA_CHANGED->GET_CELL_VALUE
+    EXPORTING
+      I_ROW_ID    = PV_ROW
+      I_FIELDNAME = 'KUNNR'
+    IMPORTING
+      E_VALUE     = LV_KUNNR.
+
+  CALL METHOD PR_DATA_CHANGED->GET_CELL_VALUE
+    EXPORTING
+      I_ROW_ID    = PV_ROW
+      I_FIELDNAME = 'LIFNR'
+    IMPORTING
+      E_VALUE     = LV_LIFNR.
+
+  CALL METHOD PR_DATA_CHANGED->GET_CELL_VALUE
+    EXPORTING
+      I_ROW_ID    = PV_ROW
+      I_FIELDNAME = 'ZKUNNR_IC'
+    IMPORTING
+      E_VALUE     = LV_ZKUNNR_IC.
+
+  CALL METHOD PR_DATA_CHANGED->GET_CELL_VALUE
+    EXPORTING
+      I_ROW_ID    = PV_ROW
+      I_FIELDNAME = 'ZPRODH_GROUP'
+    IMPORTING
+      E_VALUE     = LV_ZPRODH_GROUP.
+
+  CALL METHOD PR_DATA_CHANGED->GET_CELL_VALUE
+    EXPORTING
+      I_ROW_ID    = PV_ROW
+      I_FIELDNAME = 'MATNR'
+    IMPORTING
+      E_VALUE     = LV_MATNR.
+
+  _CLEAR LT_DUP.
+  LT_DUP[] = GT_LIST[].
+  DELETE LT_DUP INDEX PV_ROW.
+
+  READ TABLE LT_DUP WITH KEY ZKUNNR_IC     = LV_ZKUNNR_IC
+                              KUNNR        = LV_KUNNR
+                              LIFNR        = LV_LIFNR
+                              ZPRODH_GROUP = LV_ZPRODH_GROUP
+                              MATNR        = LV_MATNR.
+  CHECK SY-SUBRC = 0.
+  GV_DUP = 'X'.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form GET_CELL
+*&---------------------------------------------------------------------*
+FORM GET_CELL  USING PR_DATA_CHANGED TYPE REF TO CL_ALV_CHANGED_DATA_PROTOCOL
+                     PV_ROW
+                     PV_CELL
+                     PV_VALUE.
+
+  CALL METHOD PR_DATA_CHANGED->GET_CELL_VALUE
+    EXPORTING
+      I_ROW_ID    = PV_ROW
+      I_FIELDNAME = PV_CELL
+    IMPORTING
+      E_VALUE     = PV_VALUE.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form MODI_CELL
+*&---------------------------------------------------------------------*
+FORM MODI_CELL  USING PR_DATA_CHANGED TYPE REF TO CL_ALV_CHANGED_DATA_PROTOCOL
+                     PV_ROW
+                     PV_CELL
+                     PV_VALUE.
+
+  CALL METHOD PR_DATA_CHANGED->MODIFY_CELL
+    EXPORTING
+      I_ROW_ID    = PV_ROW
+      I_FIELDNAME = PV_CELL
+      I_VALUE     = PV_VALUE.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form CELL_STYLE2
+*&---------------------------------------------------------------------*
+FORM CELL_STYLE2  USING    PV_ROW
+                           PV_FIELD
+                           PV_MODE.
+
+  READ TABLE GT_STYL INTO GS_STYL  WITH KEY FIELDNAME = PV_FIELD.
+  IF SY-SUBRC = 0.
+    DELETE GT_STYL INDEX SY-TABIX.
+  ENDIF.
+
+  CLEAR GS_STYL.
+  GS_STYL-FIELDNAME = PV_FIELD.
+  IF PV_MODE EQ 'DISP'.
+    GS_STYL-STYLE = CL_GUI_ALV_GRID=>MC_STYLE_DISABLED.
+  ELSE.
+    GS_STYL-STYLE = CL_GUI_ALV_GRID=>MC_STYLE_ENABLED.
+  ENDIF.
+  INSERT GS_STYL INTO TABLE GT_STYL.
+  CLEAR GT_LIST-CELLSTYLE[].
+  INSERT LINES OF GT_STYL INTO TABLE GT_LIST-CELLSTYLE.
+  MODIFY GT_LIST INDEX PV_ROW TRANSPORTING CELLSTYLE.  CLEAR GT_LIST.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form EXCEL_FILE_PATH
+*&---------------------------------------------------------------------*
+FORM EXCEL_FILE_PATH.
+
+  CLEAR GV_PATH.
+  GV_PATH = 'C:\'.
+  CALL SCREEN '9200' STARTING AT 10 5.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form CHECK_UPLOAD_DATA
+*&---------------------------------------------------------------------*
+FORM CHECK_UPLOAD_DATA.
+
+  DATA : LT_DUP LIKE TABLE OF GT_LIST WITH HEADER LINE.
+  DATA : LT_MAKT     LIKE TABLE OF MAKT WITH HEADER LINE,
+         LT_MAKT_KEY LIKE TABLE OF MAKT WITH HEADER LINE.
+  DATA : BEGIN OF LT_KEY OCCURS 0,
+           ZKUNNR_IC    LIKE ZSDT0020-ZKUNNR_IC,
+           KUNNR        LIKE ZSDT0020-KUNNR,
+           LIFNR        LIKE ZSDT0020-LIFNR,
+           ZPRODH_GROUP LIKE ZSDT0020-ZPRODH_GROUP,
+         END OF LT_KEY.
+
+  DATA : LV_CNT TYPE I.
+  _CLEAR : LT_MAKT_KEY, LT_MAKT.
+  MOVE-CORRESPONDING GT_UPLOAD[] TO LT_MAKT_KEY[].
+  SORT LT_MAKT_KEY BY MATNR.
+  DELETE ADJACENT DUPLICATES FROM LT_MAKT_KEY COMPARING MATNR.
+
+  IF LT_MAKT_KEY[] IS NOT INITIAL.
+    SELECT A~MATNR
+           B~MAKTX
+    INTO CORRESPONDING FIELDS OF TABLE LT_MAKT
+    FROM MARA AS A INNER JOIN MAKT AS B
+                                   ON A~MATNR = B~MATNR
+    FOR ALL ENTRIES IN LT_MAKT_KEY
+    WHERE A~MATNR = LT_MAKT_KEY-MATNR.
+    SORT LT_MAKT BY MATNR.
+  ENDIF.
+
+  LOOP AT GT_UPLOAD.
+    CLEAR GT_LIST.
+    MOVE-CORRESPONDING GT_UPLOAD TO GT_LIST.
+    PERFORM ALPHA_INPUT USING GT_LIST-ZKUNNR_IC.
+    PERFORM ALPHA_INPUT USING GT_LIST-KUNNR.
+
+    PERFORM REQUIRED_FIELD_CHECK USING : GT_LIST-ZKUNNR_IC     TEXT-F03,
+                                         GT_LIST-KUNNR        TEXT-F05,
+                                         GT_LIST-LIFNR         TEXT-F07.
+*                                         GT_LIST-ZMARGIN       TEXT-F13.
+
+    IF GT_LIST-ZPRODH_GROUP IS INITIAL AND GT_LIST-MATNR IS INITIAL. "둘중 하나라도 값이 있어야하고,
+      IF GT_LIST-MESSAGE IS INITIAL.
+        GT_LIST-MESSAGE = TEXT-E08.
+        GT_LIST-ICON = ICON_RED_LIGHT.
+      ELSE.
+        GT_LIST-MESSAGE = GT_LIST-MESSAGE && '/' && TEXT-E08.
+      ENDIF.
+    ENDIF.
+
+    IF GT_LIST-ZPRODH_GROUP IS NOT INITIAL AND GT_LIST-MATNR IS NOT INITIAL. "둘중 하나만 값이 있어야한다.
+      IF GT_LIST-MESSAGE IS INITIAL.
+        GT_LIST-MESSAGE = TEXT-E09.
+        GT_LIST-ICON = ICON_RED_LIGHT.
+      ELSE.
+        GT_LIST-MESSAGE = GT_LIST-MESSAGE && '/' && TEXT-E09.
+      ENDIF.
+    ENDIF.
+
+
+    IF GT_LIST-ICON IS INITIAL.
+      CLEAR : GT_0040.
+      READ TABLE GT_0040 WITH KEY ZKUNNR_IC = GT_LIST-ZKUNNR_IC BINARY SEARCH.
+      IF SY-SUBRC = 0.
+        GT_LIST-ZKUNNR_IC_TXT = GT_0040-ZKUNNR_IC_TXT.
+      ELSE.
+        PERFORM ERROR_MSG USING '(Intercompany)'.
+      ENDIF.
+
+      CLEAR : GT_KNA1.
+      READ TABLE GT_KNA1 WITH KEY KUNNR = GT_LIST-KUNNR.
+      IF SY-SUBRC = 0.
+        GT_LIST-KUNNR_TXT = GT_KNA1-KUNNR_TXT.
+      ELSE.
+        PERFORM ERROR_MSG USING '(Customer)'.
+      ENDIF.
+
+      CLEAR : GT_LFA1.
+      PERFORM ALPHA_INPUT USING GT_LIST-LIFNR.
+      READ TABLE GT_LFA1 WITH KEY LIFNR = GT_LIST-LIFNR.
+      IF SY-SUBRC = 0.
+        GT_LIST-LIFNR_TXT = GT_LFA1-LIFNR_TXT.
+      ELSE.
+        PERFORM ERROR_MSG USING '(Vendor)'.
+      ENDIF.
+
+      IF GT_LIST-ZPRODH_GROUP IS NOT INITIAL.
+        CLEAR : GT_0100.
+        READ TABLE GT_0100 WITH KEY ZPRODH_GROUP = GT_LIST-ZPRODH_GROUP BINARY SEARCH.
+        IF SY-SUBRC = 0.
+          GT_LIST-ZPRODH_TXT = GT_0100-ZPRODH_TXT.
+        ELSE.
+          PERFORM ERROR_MSG USING '(Middle category)'.
+        ENDIF.
+      ENDIF.
+
+      IF GT_LIST-MATNR IS NOT INITIAL.
+        CLEAR LT_MAKT.
+        READ TABLE LT_MAKT WITH KEY MATNR = GT_LIST-MATNR BINARY SEARCH.
+        IF SY-SUBRC = 0.
+          GT_LIST-MATNR_TXT = LT_MAKT-MAKTX.
+        ELSE.
+          PERFORM ERROR_MSG USING '(SKU)'.
+        ENDIF.
+      ENDIF.
+
+      IF GT_LIST-ZMARGIN >= 0.
+      ELSE.
+        PERFORM ERROR_MSG USING '(Margin)'.
+      ENDIF.
+    ENDIF.
+
+    IF GT_LIST-ICON IS INITIAL.
+      GT_LIST-ICON = ICON_YELLOW_LIGHT.
+    ENDIF.
+
+    GT_LIST-UP = 'X'.
+    GT_LIST-ZSTART = GV_DATE.
+    APPEND GT_LIST.
+  ENDLOOP.
+
+  _CLEAR LT_DUP.
+  LT_DUP[] = GT_LIST[].
+
+  LOOP AT GT_LIST WHERE UP = 'X'.
+    CLEAR LV_CNT.
+    LOOP AT LT_DUP WHERE ZKUNNR_IC    = GT_LIST-ZKUNNR_IC
+                     AND KUNNR        = GT_LIST-KUNNR
+                     AND LIFNR        = GT_LIST-LIFNR
+                     AND ZPRODH_GROUP = GT_LIST-ZPRODH_GROUP
+                     AND MATNR        = GT_LIST-MATNR.
+      ADD 1 TO LV_CNT.
+    ENDLOOP.
+
+    IF LV_CNT > 1.
+      IF GT_LIST-MESSAGE IS INITIAL.
+        GT_LIST-MESSAGE = TEXT-E02.
+        GT_LIST-ICON = ICON_RED_LIGHT.
+        MODIFY GT_LIST TRANSPORTING MESSAGE ICON.
+      ELSE.
+        GT_LIST-MESSAGE = GT_LIST-MESSAGE && '/' && TEXT-E02.
+        MODIFY GT_LIST TRANSPORTING MESSAGE.
+      ENDIF.
+    ENDIF.
+  ENDLOOP.
+
+
+*GR_PRODH
+  SELECT A~ZPRODH_GROUP, A~PRODH, B~MATNR
+  INTO TABLE @DATA(LT_GRP)
+  FROM ZSDT0090 AS A INNER JOIN MARA AS B ON A~PRODH = B~PRDHA.
+  SORT LT_GRP BY MATNR.
+
+
+  _CLEAR LT_KEY.
+*기존 마진률 제안
+  LOOP AT GT_LIST WHERE UP = 'X'
+                   AND  ICON = ICON_YELLOW_LIGHT
+                   AND  ZMARGIN IS INITIAL.
+
+    MOVE-CORRESPONDING GT_LIST TO LT_KEY.
+    IF LT_KEY-ZPRODH_GROUP IS INITIAL.
+      READ TABLE LT_GRP INTO DATA(LS_GRP) WITH KEY MATNR = GT_LIST-MATNR BINARY SEARCH.
+      LT_KEY-ZPRODH_GROUP = LS_GRP-ZPRODH_GROUP.
+    ENDIF.
+    COLLECT LT_KEY. CLEAR LT_KEY.
+  ENDLOOP.
+
+  SELECT A~ZMARGIN,
+         A~ZKUNNR_IC,
+         A~KUNNR,
+         A~LIFNR,
+         A~ZPRODH_GROUP,
+         B~ZSTART
+  INTO TABLE @DATA(LT_MARGIN)
+  FROM ZSDT0020 AS A INNER JOIN ZSDT0021 AS B ON A~ZSTART = B~ZSTART
+    FOR ALL ENTRIES IN @LT_KEY
+    WHERE A~ZKUNNR_IC = @LT_KEY-ZKUNNR_IC
+      AND A~KUNNR = @LT_KEY-KUNNR
+      AND A~LIFNR = @LT_KEY-LIFNR
+      AND A~ZPRODH_GROUP = @LT_KEY-ZPRODH_GROUP
+      AND B~ZTYPE = 'N'
+      AND B~ZCONFIRM = 'X'.
+
+  SORT LT_MARGIN BY ZKUNNR_IC ASCENDING
+                    KUNNR ASCENDING
+                    LIFNR ASCENDING
+                    ZPRODH_GROUP ASCENDING
+                    ZSTART DESCENDING.
+  DELETE ADJACENT DUPLICATES FROM LT_MARGIN COMPARING ZKUNNR_IC KUNNR LIFNR ZPRODH_GROUP.
+
+  SORT LT_MARGIN BY ZKUNNR_IC KUNNR LIFNR ZPRODH_GROUP.
+
+  DATA : LV_ZPRODH_GROUP LIKE ZSDT0020-ZPRODH_GROUP.
+
+  LOOP AT GT_LIST WHERE UP = 'X'
+                   AND  ICON = ICON_YELLOW_LIGHT
+                   AND  ZMARGIN IS INITIAL.
+
+    IF  GT_LIST-ZPRODH_GROUP IS INITIAL.
+      READ TABLE LT_GRP INTO DATA(LS_GRP_A) WITH KEY MATNR = GT_LIST-MATNR BINARY SEARCH.
+      LV_ZPRODH_GROUP = LS_GRP_A-ZPRODH_GROUP.
+    ELSE.
+      LV_ZPRODH_GROUP = GT_LIST-ZPRODH_GROUP.
+    ENDIF.
+
+    READ TABLE LT_MARGIN INTO DATA(LS_MARGIN) WITH KEY ZKUNNR_IC    =  GT_LIST-ZKUNNR_IC
+                                                       KUNNR        =  GT_LIST-KUNNR
+                                                       LIFNR        =  GT_LIST-LIFNR
+                                                       ZPRODH_GROUP =  LV_ZPRODH_GROUP BINARY SEARCH.
+    IF SY-SUBRC = 0.
+      GT_LIST-ZMARGIN = LS_MARGIN-ZMARGIN.
+      MODIFY GT_LIST TRANSPORTING ZMARGIN.
+    ENDIF.
+  ENDLOOP.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form TEMPLATE_DOWNLOAD
+*&---------------------------------------------------------------------*
+FORM TEMPLATE_DOWNLOAD .
+
+  DATA : WWWDATATAB LIKE WWWDATATAB.
+
+  DATA : LV_FILENAME TYPE STRING,
+         LV_PATH     TYPE STRING,
+         LV_FULLPATH TYPE STRING.
+
+  DATA : FILENAME TYPE RLGRAP-FILENAME.
+
+  CLEAR : WWWDATATAB.
+
+  SELECT SINGLE *
+    INTO CORRESPONDING FIELDS OF WWWDATATAB
+    FROM WWWDATA
+   WHERE OBJID EQ 'ZSDR0011'.
+
+  CHECK SY-SUBRC = 0.
+
+  CALL METHOD CL_GUI_FRONTEND_SERVICES=>FILE_SAVE_DIALOG
+    EXPORTING
+      WINDOW_TITLE      = 'Excel Format'
+      DEFAULT_EXTENSION = 'xls'
+      DEFAULT_FILE_NAME = 'Upload Format'
+      FILE_FILTER       = 'Only Excel Files (*.xls;*.xlsx)'
+      INITIAL_DIRECTORY = 'C:\'
+    CHANGING
+      FILENAME          = LV_FILENAME
+      PATH              = LV_PATH
+      FULLPATH          = LV_FULLPATH.
+
+  IF SY-SUBRC <> 0.
+    MESSAGE ID SY-MSGID TYPE SY-MSGTY NUMBER SY-MSGNO
+                        WITH SY-MSGV1 SY-MSGV2 SY-MSGV3 SY-MSGV4.
+  ENDIF.
+
+  FILENAME = LV_FULLPATH.
+
+  CHECK FILENAME IS NOT INITIAL .
+
+  CALL FUNCTION 'DOWNLOAD_WEB_OBJECT'
+    EXPORTING
+      KEY         = WWWDATATAB
+      DESTINATION = FILENAME.
+
+  CALL METHOD CL_GUI_FRONTEND_SERVICES=>EXECUTE
+    EXPORTING
+      DOCUMENT               = LV_FULLPATH
+    EXCEPTIONS
+      CNTL_ERROR             = 1
+      ERROR_NO_GUI           = 2
+      BAD_PARAMETER          = 3
+      FILE_NOT_FOUND         = 4
+      PATH_NOT_FOUND         = 5
+      FILE_EXTENSION_UNKNOWN = 6
+      ERROR_EXECUTE_FAILED   = 7
+      SYNCHRONOUS_FAILED     = 8
+      NOT_SUPPORTED_BY_GUI   = 9
+      OTHERS                 = 10.
+
+  IF SY-SUBRC <> 0.
+    MESSAGE ID SY-MSGID TYPE SY-MSGTY NUMBER SY-MSGNO
+                        WITH SY-MSGV1 SY-MSGV2 SY-MSGV3 SY-MSGV4.
+    EXIT .
+  ENDIF.
+
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form TEMPLATE_BUTTON
+*&---------------------------------------------------------------------*
+FORM TEMPLATE_BUTTON .
+
+  DATA : L_DYNTXT     TYPE SMP_DYNTXT.
+
+  CLEAR : L_DYNTXT.
+  MOVE : TEXT-002     TO L_DYNTXT-TEXT,
+         ICON_XLS     TO L_DYNTXT-ICON_ID,
+         TEXT-002     TO L_DYNTXT-ICON_TEXT,
+         TEXT-002     TO L_DYNTXT-QUICKINFO,
+         'C:\TEMP'    TO L_DYNTXT-PATH.      "C:\TEMP
+
+  SSCRFIELDS-FUNCTXT_01 = L_DYNTXT.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form ERROR_MSG
+*&---------------------------------------------------------------------*
+FORM ERROR_MSG  USING PV_FIELD.
+
+  IF GT_LIST-MESSAGE IS INITIAL.
+    GT_LIST-MESSAGE = TEXT-E04 && PV_FIELD.
+    GT_LIST-ICON = ICON_RED_LIGHT.
+  ELSE.
+    GT_LIST-MESSAGE = GT_LIST-MESSAGE && '/' && PV_FIELD.
+  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form ALPHA_OUTPUT
+*&---------------------------------------------------------------------*
+FORM ALPHA_OUTPUT  USING P_DATA.
+
+  CALL FUNCTION 'CONVERSION_EXIT_ALPHA_OUTPUT'
+    EXPORTING
+      INPUT  = P_DATA
+    IMPORTING
+      OUTPUT = P_DATA.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form GET_DOMAIN_ZTYPE
+*&---------------------------------------------------------------------*
+FORM GET_DOMAIN_ZTYPE  USING  PV_ZTYPE
+                       CHANGING PV_TEXT.
+
+  DATA: LT_VAL TYPE TABLE OF DD07V.
+
+  CALL FUNCTION 'GET_DOMAIN_VALUES'
+    EXPORTING
+      DOMNAME         = 'ZDTYPE'
+      TEXT            = 'X'
+    TABLES
+      VALUES_TAB      = LT_VAL
+    EXCEPTIONS
+      NO_VALUES_FOUND = 1
+      OTHERS          = 2.
+
+  READ TABLE LT_VAL INTO DATA(LS_VAL) WITH KEY DOMVALUE_L = PV_ZTYPE.
+  IF SY-SUBRC = 0.
+    PV_TEXT = LS_VAL-DDTEXT.
+  ENDIF.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form GET_GROUP_MARGIN
+*&---------------------------------------------------------------------*
+FORM GET_GROUP_MARGIN USING PR_DATA_CHANGED TYPE REF TO CL_ALV_CHANGED_DATA_PROTOCOL
+                            PV_ROW.
+  DATA : LV_KUNNR        LIKE KNA1-KUNNR,
+         LV_LIFNR        LIKE LFA1-LIFNR,
+         LV_ZKUNNR_IC    LIKE ZSDT0020-ZKUNNR_IC,
+         LV_ZPRODH_GROUP LIKE ZSDT0100-ZPRODH_GROUP.
+
+  CLEAR : LV_KUNNR, LV_LIFNR, LV_ZKUNNR_IC, LV_ZPRODH_GROUP, GV_MARGIN.
+
+  CALL METHOD PR_DATA_CHANGED->GET_CELL_VALUE
+    EXPORTING
+      I_ROW_ID    = PV_ROW
+      I_FIELDNAME = 'KUNNR'
+    IMPORTING
+      E_VALUE     = LV_KUNNR.
+
+  CALL METHOD PR_DATA_CHANGED->GET_CELL_VALUE
+    EXPORTING
+      I_ROW_ID    = PV_ROW
+      I_FIELDNAME = 'LIFNR'
+    IMPORTING
+      E_VALUE     = LV_LIFNR.
+
+  CALL METHOD PR_DATA_CHANGED->GET_CELL_VALUE
+    EXPORTING
+      I_ROW_ID    = PV_ROW
+      I_FIELDNAME = 'ZKUNNR_IC'
+    IMPORTING
+      E_VALUE     = LV_ZKUNNR_IC.
+
+  CALL METHOD PR_DATA_CHANGED->GET_CELL_VALUE
+    EXPORTING
+      I_ROW_ID    = PV_ROW
+      I_FIELDNAME = 'ZPRODH_GROUP'
+    IMPORTING
+      E_VALUE     = LV_ZPRODH_GROUP.
+
+  SELECT A~ZMARGIN,
+         B~ZSTART
+  INTO TABLE @DATA(LT_MARGIN)
+  FROM ZSDT0020 AS A INNER JOIN ZSDT0021 AS B ON A~ZSTART = B~ZSTART
+    WHERE A~ZKUNNR_IC = @LV_ZKUNNR_IC
+      AND A~KUNNR = @LV_KUNNR
+      AND A~LIFNR = @LV_LIFNR
+      AND A~ZPRODH_GROUP = @LV_ZPRODH_GROUP
+      AND B~ZTYPE = 'N'
+      AND B~ZCONFIRM = 'X'.
+
+  SORT LT_MARGIN BY ZSTART DESCENDING.
+  READ TABLE LT_MARGIN INTO DATA(LS_MARGIN) INDEX 1.
+  GV_MARGIN = LS_MARGIN-ZMARGIN.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form GET_GROUP
+*&---------------------------------------------------------------------*
+FORM GET_GROUP  USING PV_GETVALUE PV_MODIVALUE.
+
+  CLEAR PV_MODIVALUE.
+
+  SELECT SINGLE B~ZPRODH_GROUP
+  INTO PV_MODIVALUE
+  FROM MARA AS A INNER JOIN ZSDT0090 AS B ON A~PRDHA = B~PRODH
+  WHERE A~MATNR = PV_GETVALUE.
+
+ENDFORM.

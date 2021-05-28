@@ -1,0 +1,132 @@
+FUNCTION ZSD_SO_BATCH_PROCESS.
+*"----------------------------------------------------------------------
+*"*"Local Interface:
+*"  IMPORTING
+*"     VALUE(I_FLAG) TYPE  CHAR1 OPTIONAL
+*"     VALUE(I_BDCMODE) TYPE  CTU_MODE OPTIONAL
+*"  EXPORTING
+*"     VALUE(RETURN) LIKE  BAPIRETURN1 STRUCTURE  BAPIRETURN1
+*"  TABLES
+*"      T_DATA STRUCTURE  ZSDS0030 OPTIONAL
+*"      T_DATA_CAN STRUCTURE  ZSDS0031 OPTIONAL
+*"----------------------------------------------------------------------
+
+  DATA : LT_ZSDT0130 LIKE TABLE OF ZSDT0130 WITH HEADER LINE.
+  DATA : LT_ZSDT0131 LIKE TABLE OF ZSDT0131 WITH HEADER LINE.
+
+  IF I_BDCMODE IS INITIAL.
+    GV_MODE = 'N'.
+  ELSE.
+    GV_MODE = I_BDCMODE.
+  ENDIF.
+
+  CASE I_FLAG.
+    WHEN 'C'.   "*----->Delivery-GI-Billing
+      _CLEAR GT_DATA.
+      GT_DATA[] = T_DATA[].
+      DELETE GT_DATA WHERE VBELN IS INITIAL.
+      DELETE GT_DATA WHERE POSNR IS INITIAL.
+      DELETE GT_DATA WHERE LFIMG IS INITIAL.
+      DELETE GT_DATA WHERE WADAT_IST IS INITIAL.
+      IF GT_DATA[] IS INITIAL.
+        RETURN-TYPE = 'E'.
+        RETURN-MESSAGE = TEXT-E01.
+        EXIT.
+      ENDIF.
+
+      PERFORM PREPARE_DATA.
+
+      LOOP AT GT_HEADER.
+        IF GT_HEADER-VBELN_VL IS INITIAL.
+          PERFORM DELIVERY.
+        ENDIF.
+        IF GT_HEADER-VBELN_VL IS NOT INITIAL AND GT_HEADER-MAT_DOC IS INITIAL.
+          "VALUATION TYPE을 받을경우 UPDATE
+          IF GT_HEADER-BWTAR IS NOT INITIAL.
+            PERFORM UPDATE_DELIVERY.
+          ENDIF.
+          PERFORM GOODS_ISSUE.
+        ENDIF.
+        IF GT_HEADER-MAT_DOC IS NOT INITIAL AND GT_HEADER-VBELN_VF IS INITIAL.
+          WAIT UP TO 1 SECONDS.
+          PERFORM BILLING.
+        ENDIF.
+        GT_DATA-VBELN_VL = GT_HEADER-VBELN_VL.
+        GT_DATA-MAT_DOC  = GT_HEADER-MAT_DOC.
+        IF GT_HEADER-VBELN_VF IS INITIAL.
+          GT_DATA-TYPE = 'E'.
+          GT_DATA-MESSAGE = GT_HEADER-MESSAGE.
+          MODIFY GT_DATA TRANSPORTING VBELN_VL MAT_DOC TYPE MESSAGE WHERE VBELN = GT_HEADER-VBELN
+*                                                                      AND CONNO = GT_HEADER-CONNO
+                                                                      AND BLDOC = GT_HEADER-BLDOC
+                                                                      AND INVNO_EX = GT_HEADER-INVNO_EX.
+        ELSE.
+          GT_DATA-VBELN_VF  = GT_HEADER-VBELN_VF.
+          GT_DATA-TYPE = 'S'.
+          MODIFY GT_DATA TRANSPORTING VBELN_VL MAT_DOC VBELN_VF TYPE MESSAGE WHERE VBELN = GT_HEADER-VBELN
+*                                                                               AND CONNO = GT_HEADER-CONNO
+                                                                      AND BLDOC = GT_HEADER-BLDOC
+                                                                      AND INVNO_EX = GT_HEADER-INVNO_EX.
+        ENDIF.
+      ENDLOOP.
+      _CLEAR LT_ZSDT0130.
+      MOVE-CORRESPONDING GT_DATA[] TO LT_ZSDT0130[].
+      LOOP AT LT_ZSDT0130.
+        LT_ZSDT0130-ERDAT = SY-DATUM.
+        LT_ZSDT0130-ZTIME = SY-UZEIT.
+        LT_ZSDT0130-UNAME = SY-UNAME.
+        MODIFY LT_ZSDT0130. CLEAR LT_ZSDT0130.
+      ENDLOOP.
+      MODIFY ZSDT0130 FROM TABLE LT_ZSDT0130.
+
+      T_DATA[] = GT_DATA[].
+
+    WHEN 'D'.   "*----->Cancel Billing-GI-Delivery
+      _CLEAR GT_DATA_CAN.
+      GT_DATA_CAN[] = T_DATA_CAN[].
+      "BILLING 문서 존재시, Delivery 무조건 존재
+*      DELETE GT_DATA_CAN WHERE VBELN_VL IS INITIAL.
+      IF GT_DATA_CAN[] IS INITIAL.
+        RETURN-TYPE = 'E'.
+        RETURN-MESSAGE = TEXT-E01.
+        EXIT.
+      ENDIF.
+      PERFORM PREPARE_CANC_DATA.
+
+      LOOP AT GT_DATA_CAN.
+        CLEAR GT_VBFA.
+        READ TABLE GT_VBFA WITH KEY VBELV = GT_DATA_CAN-VBELN_VL BINARY SEARCH.
+        IF SY-SUBRC = 0.
+          TRANSLATE GT_VBFA-VBTYP_N TO UPPER CASE.
+          IF GT_VBFA-VBTYP_N = 'M'.
+            PERFORM CANCEL_BILLING.
+*            PERFORM CANCEL_BILLING_BAPI.
+          ENDIF.
+          IF GT_DATA_CAN-VBELN_VL IS NOT INITIAL AND ( GT_VBFA-VBTYP_N = 'R' OR GT_VBFA-VBTYP_N = 'N' ).
+            PERFORM REVERSE_GI.
+          ENDIF.
+          IF GT_DATA_CAN-VBELN_VL IS NOT INITIAL AND GT_VBFA-VBTYP_N = 'H'.
+*          PERFORM CANCEL_DELIVERY.
+            PERFORM CANCEL_DELIVERY_BAPI.
+          ENDIF.
+        ELSE.
+*          PERFORM CANCEL_DELIVERY.
+          PERFORM CANCEL_DELIVERY_BAPI.
+        ENDIF.
+      ENDLOOP.
+      _CLEAR LT_ZSDT0131.
+      MOVE-CORRESPONDING GT_DATA_CAN[] TO LT_ZSDT0131[].
+      LOOP AT LT_ZSDT0131.
+        LT_ZSDT0131-ERDAT = SY-DATUM.
+        LT_ZSDT0131-ZTIME = SY-UZEIT.
+        LT_ZSDT0131-UNAME = SY-UNAME.
+        MODIFY LT_ZSDT0131. CLEAR LT_ZSDT0131.
+      ENDLOOP.
+      MODIFY ZSDT0131 FROM TABLE LT_ZSDT0131.
+
+      T_DATA_CAN[] = GT_DATA_CAN[].
+
+  ENDCASE.
+
+
+ENDFUNCTION.
